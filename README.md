@@ -2,7 +2,7 @@
 
 # OpenWave Identity Registry
 
-### Global NPT Identity & Alias Resolution Service
+### Global National Payment Tag (NPT) Identity & Alias Resolution
 
 **Open Source · Bank-Vouched · Governance-First**
 
@@ -21,7 +21,7 @@
 The **OpenWave Identity Registry** is the open-source implementation of the
 [OpenWave Identity API v1.0](https://github.com/openwave-standard/openwave-spec).
 
-It is the global service that maps **NPT handles** (payment usernames) to bank accounts,
+It is the global service that maps **NPT (National Payment Tag) handles** to bank accounts,
 enabling universal payment routing across the Libyan banking network.
 
 A person owns a username. They can link accounts from multiple banks to it:
