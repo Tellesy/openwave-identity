@@ -1,0 +1,12 @@
+.gradle/
+build/
+.idea/
+*.iml
+out/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+src/main/resources/application-local.yml
+src/main/resources/application-prod.yml
