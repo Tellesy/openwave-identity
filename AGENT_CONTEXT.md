@@ -2,19 +2,27 @@
 
 > **For AI agents:** Read this before touching any code in this project.
 > Master ecosystem map: `/Users/mtellesy/GitHub/nexus.mw/AGENT_CONTEXT.md`
-> Last updated: April 2026
+> Last updated: April 28, 2026
 
 ---
 
 ## What is this project?
 
-**openwave-identity** is the open-source reference implementation of the **OpenWave Identity Registry** — the global service that maps NPT (National Payment Tag) handles to bank accounts, enabling universal payment routing across the Libyan banking network.
+**openwave-identity** is the centralized **OpenWave Identity Registry** — the global service that maps NPT (National Payment Tag) handles to bank accounts.
+
+**CRITICAL IDENTITY FACTS:**
+- This is NOT owned by any bank
+- It is NOT part of Astro — it is a separate, independent service
+- Currently operated by Neptune Fintech
+- Future governance: Central Bank of Libya (CBL)
+- Any bank can claim handles here using their `owbk_` key
+- Resolution is public — any gateway can resolve a handle to an IBAN
 
 **Path:** `/Users/mtellesy/GitHub/openwave-identity`  
+**Port:** 8095 (currently running ✅)  
 **Stack:** Kotlin + Spring Boot 3  
-**Purpose:** Global NPT handle ownership, multi-bank account linking, public alias resolution, cross-gateway federation  
-**Implements:** `openwave-identity-v1.0.yaml` from `/Users/mtellesy/GitHub/openwave-spec`  
-**Operated by:** Neptune Fintech (future stewardship: Central Bank of Libya)
+**Purpose:** Global NPT handle ownership, multi-bank multi-IBAN account linking, public alias resolution  
+**Implements:** `openwave-identity-v1.0.yaml` from `/Users/mtellesy/GitHub/openwave-spec`
 
 ---
 
@@ -23,8 +31,8 @@
 | Project | Path | Relationship |
 |---|---|---|
 | **openwave-spec** | `/Users/mtellesy/GitHub/openwave-spec` | Defines `openwave-identity-v1.0.yaml` which this implements |
-| **neptune-astro** | `/Users/mtellesy/GitHub/neptune-astro` | Gateway that queries this registry for cross-bank alias resolution |
-| **nexus.mw** | `/Users/mtellesy/GitHub/nexus.mw` | Bank middleware; banks enroll aliases through NAD (separate from this registry) |
+| **neptune-astro** | `/Users/mtellesy/GitHub/neptune-astro` | Gateway that queries this registry for cross-bank alias resolution (via nexus.mw proxy) |
+| **nexus.mw** | `/Users/mtellesy/GitHub/nexus.mw` | Bank middleware; proxies OpenWave Identity calls for neptune-astro; banks enroll aliases through NAD (separate from this registry) |
 | **andalus** | `/Users/mtellesy/GitHub/ethaq/andalus` | Andalus Bank backend — customers enroll NPT handles through their bank |
 
 ---
@@ -64,43 +72,66 @@ Handle: mtellesy            │  handle → accounts   │
 
 ---
 
-## API (implements openwave-identity-v1.0.yaml)
+## API (actual implemented endpoints — April 28, 2026)
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/identity/handles` | Register an NPT handle (bank-vouched) |
-| `GET` | `/identity/resolve/{alias}` | Resolve alias → IBAN + bank handle |
-| `GET` | `/identity/handles/{alias}` | Get handle details + linked accounts |
-| `POST` | `/identity/handles/{alias}/accounts` | Link additional bank account |
-| `DELETE` | `/identity/handles/{alias}` | Deactivate a handle |
-| `GET` | `/identity/banks` | List all registered banks (phonebook) |
-| `POST` | `/identity/banks` | Register a bank (governance) |
-| `GET` | `/identity/banks/{handle}` | Bank details |
+| `POST` | `/v1/identity/claim` | Claim NPT handle (bank-vouched, idempotent by IBAN) |
+| `GET` | `/v1/identity/resolve?alias=` | Resolve alias → default IBAN for bank |
+| `GET` | `/v1/identity/{nptHandle}` | Get identity + linked bank list |
+| `GET` | `/v1/identity/{nptHandle}/accounts` | All linked accounts (all banks) |
+| `GET` | `/v1/identity/{nptHandle}/accounts/{bankHandle}` | IBANs at specific bank |
+| `POST` | `/v1/identity/{nptHandle}/accounts` | Link additional IBAN |
+| `PATCH` | `/v1/identity/{nptHandle}/accounts/iban/{iban}` | Update an IBAN |
+| `DELETE` | `/v1/identity/{nptHandle}/accounts/iban/{iban}` | Unlink an IBAN |
+| `PATCH` | `/v1/identity/{nptHandle}/accounts/iban/{iban}/set-default` | Set default IBAN for a bank |
+| `PATCH` | `/v1/identity/{nptHandle}/default-bank` | Set default bank for bare handle resolution |
+| `DELETE` | `/v1/identity/{nptHandle}` | Delete/suspend identity |
+| `GET` | `/v1/banks` | List registered banks |
+| `POST` | `/v1/banks` | Register a bank |
+| `GET` | `/v1/banks/{handle}` | Bank details |
+
+## Multi-IBAN Rules (V2 migration — April 28, 2026)
+
+- **Unique constraint:** `(identity_id, iban)` — NOT `(identity_id, bank_handle)`
+- One user can have **many IBANs at the same bank**
+- First IBAN per bank is automatically set as default
+- `isDefault=true` picks which IBAN resolves for `username@bank`
+- `defaultBankHandle` on identity picks which bank resolves for bare `username`
+- Unlink default → next IBAN at that bank promoted automatically
 
 ---
 
 ## Integration with neptune-astro
 
-neptune-astro queries this registry during alias resolution:
+neptune-astro talks to this registry in two ways:
 
+**Enrollment (openwave-identity is SOURCE OF TRUTH):**
+```
+1. Bank staff enrolls customer via NexusHub → NexusMW → Astro
+2. Astro calls POST /v1/identity/claim on this registry FIRST
+3. Only if claim succeeds, Astro saves locally (routing cache)
+4. If registry is down/disabled, enrollment is rejected
+```
+
+**Resolution (alias lookup):**
 ```
 1. Customer enters "mtellesy@andalus" at checkout
-2. Astro first checks its local alias store
-3. If not found → queries openwave-identity at registry.openwave.ly
-4. Registry returns { iban: "LY83002700...", bank_handle: "andalus" }
+2. Astro checks local cache first
+3. If not found → queries openwave-identity GET /v1/identity/resolve?alias=mtellesy@andalus
+4. Registry returns { iban, bank_handle, display_name, is_default }
 5. Astro proceeds with payment routing
 ```
 
-Controlled by env var in neptune-astro: `IDENTITY_REGISTRY_ENABLED=true`  
-Registry URL configured as: `IDENTITY_REGISTRY_URL=https://registry.openwave.ly`
-
-When enrollment happens in Astro, it auto-syncs to this registry if enabled.
+Env vars in neptune-astro:
+- `IDENTITY_REGISTRY_ENABLED=true`
+- `IDENTITY_REGISTRY_URL=http://localhost:8095/v1` (local dev)
 
 ---
 
 ## Pending / Next Steps
 
-- Implement governance endpoints (handle dispute, handle lock/unlock)
-- Add cross-gateway handle federation (allow other compliant gateways to query)
-- Add rate limiting on public resolution endpoint
-- Production deployment setup (currently operated by Neptune Fintech)
+- Governance endpoints (handle dispute, lock/unlock)
+- Cross-gateway federation (other compliant gateways querying this registry)
+- Rate limiting on public resolution endpoint
+- Production deployment + CBL handover planning

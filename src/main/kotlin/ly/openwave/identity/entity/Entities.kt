@@ -58,6 +58,12 @@ class IdentityEntity(
     @Column(name = "default_bank_handle", length = 20)
     var defaultBankHandle: String? = null,
 
+    @Column(name = "national_id", length = 12, unique = true)
+    var nationalId: String? = null,
+
+    @Column(name = "phone", length = 20)
+    var phone: String? = null,
+
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant = Instant.now(),
 
@@ -71,7 +77,7 @@ class IdentityEntity(
 @Entity
 @Table(
     name = "linked_accounts",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["identity_id", "bank_handle"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["identity_id", "iban"])]
 )
 class LinkedAccountEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -89,6 +95,12 @@ class LinkedAccountEntity(
 
     @Column(name = "bank_customer_ref", nullable = false, length = 100)
     val bankCustomerRef: String,
+
+    @Column(name = "display_name", nullable = true, length = 100)
+    var displayName: String? = null,
+
+    @Column(name = "currency", nullable = false, length = 3)
+    var currency: String = "LYD",
 
     @Column(name = "is_default", nullable = false)
     var isDefault: Boolean = false,

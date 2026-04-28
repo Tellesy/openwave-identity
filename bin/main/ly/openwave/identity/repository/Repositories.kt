@@ -27,9 +27,16 @@ interface IdentityRepository : JpaRepository<IdentityEntity, Long> {
 
 @Repository
 interface LinkedAccountRepository : JpaRepository<LinkedAccountEntity, Long> {
-    fun findByIdentityIdAndBankHandle(identityId: Long, bankHandle: String): LinkedAccountEntity?
+    fun findAllByIdentityIdAndBankHandle(identityId: Long, bankHandle: String): List<LinkedAccountEntity>
+    fun findByIdentityIdAndBankHandleAndIsDefaultTrue(identityId: Long, bankHandle: String): LinkedAccountEntity?
+    fun findByIdentityIdAndIban(identityId: Long, iban: String): LinkedAccountEntity?
+    fun existsByIdentityIdAndIban(identityId: Long, iban: String): Boolean
     fun findAllByIdentityId(identityId: Long): List<LinkedAccountEntity>
     fun existsByIdentityIdAndBankHandle(identityId: Long, bankHandle: String): Boolean
+
+    @Modifying
+    @Query("UPDATE LinkedAccountEntity l SET l.isDefault = false WHERE l.identity.id = :identityId AND l.bankHandle = :bankHandle")
+    fun clearBankDefaults(identityId: Long, bankHandle: String)
 
     @Modifying
     @Query("UPDATE LinkedAccountEntity l SET l.updatedAt = :now WHERE l.id = :id")

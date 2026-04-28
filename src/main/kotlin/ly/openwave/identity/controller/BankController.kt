@@ -22,15 +22,15 @@ class BankController(private val bankService: BankService) {
     ): BankListResponse {
         val banks = bankService.listBanks(country, activeOnly)
         return BankListResponse(
-            banks       = banks.map { it.toResponse() },
+            banks       = banks.map { it.toPublicResponse() },
             total       = banks.size,
             generatedAt = Instant.now()
         )
     }
 
     @GetMapping("/{bankHandle}")
-    fun getBank(@PathVariable bankHandle: String): BankResponse =
-        bankService.getBank(bankHandle).toResponse()
+    fun getBank(@PathVariable bankHandle: String): BankPublicResponse =
+        bankService.getBank(bankHandle).toPublicResponse()
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -89,12 +89,21 @@ data class BankResponse(
     val displayName: String,
     val country: String,
     val coreUrl: String,
+    val contactEmail: String,
+    val active: Boolean,
+    val registeredAt: Instant
+)
+
+data class BankPublicResponse(
+    val bankHandle: String,
+    val displayName: String,
+    val country: String,
     val active: Boolean,
     val registeredAt: Instant
 )
 
 data class BankListResponse(
-    val banks: List<BankResponse>,
+    val banks: List<BankPublicResponse>,
     val total: Int,
     val generatedAt: Instant
 )
@@ -106,11 +115,20 @@ data class BankRegistrationResponse(
     val registeredAt: Instant
 )
 
+fun BankEntity.toPublicResponse() = BankPublicResponse(
+    bankHandle   = bankHandle,
+    displayName  = displayName,
+    country      = country,
+    active       = active,
+    registeredAt = registeredAt
+)
+
 fun BankEntity.toResponse() = BankResponse(
     bankHandle   = bankHandle,
     displayName  = displayName,
     country      = country,
     coreUrl      = coreUrl,
+    contactEmail = contactEmail,
     active       = active,
     registeredAt = registeredAt
 )

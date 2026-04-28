@@ -16,6 +16,9 @@ import org.springframework.web.filter.OncePerRequestFilter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 const val ROLE_ADMIN       = "ROLE_ADMIN"
 const val ROLE_BANK        = "ROLE_BANK"
@@ -28,8 +31,20 @@ class SecurityConfig(
 ) {
 
     @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val config = CorsConfiguration().apply {
+            allowedOriginPatterns = listOf("*")
+            allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+            allowedHeaders = listOf("*")
+            allowCredentials = false
+        }
+        return UrlBasedCorsConfigurationSource().apply { registerCorsConfiguration("/**", config) }
+    }
+
+    @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
+            .cors { it.configurationSource(corsConfigurationSource()) }
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {

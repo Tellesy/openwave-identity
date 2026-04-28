@@ -4,6 +4,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
+import jakarta.validation.constraints.Digits
 import ly.openwave.identity.entity.IdentityEntity
 import ly.openwave.identity.entity.LinkedAccountEntity
 import ly.openwave.identity.security.callerBankHandle
@@ -20,17 +21,18 @@ class IdentityController(private val identityService: IdentityService) {
     @PostMapping("/claim")
     fun claim(@Valid @RequestBody req: ClaimHandleRequest): ResponseEntity<IdentityResponse> {
         val callerBank = callerBankHandle()
+        val wasNew = identityService.getIdentityOrNull(req.nptHandle) == null
         val identity = identityService.claimHandle(
             nptHandle       = req.nptHandle,
             bankHandle      = callerBank,
             iban            = req.iban,
             displayName     = req.customerDisplayName,
             bankCustomerRef = req.bankCustomerRef,
-            setAsDefault    = req.setAsDefault ?: true
+            setAsDefault    = req.setAsDefault ?: true,
+            nationalId      = req.nationalId,
+            phone           = req.phone
         )
-        val status = if (identityService.getLinkedAccounts(req.nptHandle, callerBank).size > 1)
-            HttpStatus.OK else HttpStatus.CREATED
-        return ResponseEntity.status(status).body(identity.toResponse())
+        return ResponseEntity.status(if (wasNew) HttpStatus.CREATED else HttpStatus.OK).body(identity.toResponse())
     }
 
     @GetMapping("/{nptHandle}")
@@ -70,36 +72,59 @@ class IdentityController(private val identityService: IdentityService) {
         ).toResponse()
     }
 
-    @PatchMapping("/{nptHandle}/accounts/{bankHandle}")
+    @GetMapping("/{nptHandle}/accounts/{bankHandle}")
+    fun listBankAccounts(
+        @PathVariable nptHandle: String,
+        @PathVariable bankHandle: String
+    ): LinkedAccountsResponse {
+        val accounts = identityService.getLinkedAccountsForBank(nptHandle, bankHandle, callerBankHandle())
+        return LinkedAccountsResponse(nptHandle = nptHandle, accounts = accounts.map { it.toResponse() })
+    }
+
+    @PatchMapping("/{nptHandle}/accounts/iban/{iban}")
     fun updateAccount(
         @PathVariable nptHandle: String,
-        @PathVariable bankHandle: String,
+        @PathVariable iban: String,
         @Valid @RequestBody req: UpdateAccountRequest
     ): LinkedAccountResponse {
         return identityService.updateLinkedAccount(
-            nptHandle       = nptHandle,
-            bankHandle      = bankHandle,
+            nptHandle        = nptHandle,
+            iban             = iban,
+            bankHandle       = req.bankHandle,
             callerBankHandle = callerBankHandle(),
-            newIban         = req.iban
+            newIban          = req.newIban
         ).toResponse()
     }
 
-    @DeleteMapping("/{nptHandle}/accounts/{bankHandle}")
+    @DeleteMapping("/{nptHandle}/accounts/iban/{iban}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun unlinkAccount(@PathVariable nptHandle: String, @PathVariable bankHandle: String) {
-        identityService.unlinkAccount(nptHandle, bankHandle, callerBankHandle())
+    fun unlinkAccount(
+        @PathVariable nptHandle: String,
+        @PathVariable iban: String,
+        @RequestParam bankHandle: String
+    ) {
+        identityService.unlinkAccount(nptHandle, iban, bankHandle, callerBankHandle())
     }
 
-    @PatchMapping("/{nptHandle}/default")
-    fun setDefault(
+    @PatchMapping("/{nptHandle}/accounts/iban/{iban}/set-default")
+    fun setDefaultIban(
         @PathVariable nptHandle: String,
-        @Valid @RequestBody req: SetDefaultRequest
+        @PathVariable iban: String,
+        @RequestParam bankHandle: String
+    ): LinkedAccountResponse {
+        return identityService.setDefaultIban(nptHandle, iban, bankHandle, callerBankHandle()).toResponse()
+    }
+
+    @PatchMapping("/{nptHandle}/default-bank")
+    fun setDefaultBank(
+        @PathVariable nptHandle: String,
+        @Valid @RequestBody req: SetDefaultBankRequest
     ): SetDefaultResponse {
-        val identity = identityService.setDefault(nptHandle, req.bankHandle, callerBankHandle())
+        val identity = identityService.setDefaultBank(nptHandle, req.bankHandle, callerBankHandle())
         return SetDefaultResponse(
-            nptHandle          = identity.nptHandle,
-            defaultBankHandle  = identity.defaultBankHandle,
-            updatedAt          = identity.updatedAt
+            nptHandle         = identity.nptHandle,
+            defaultBankHandle = identity.defaultBankHandle,
+            updatedAt         = identity.updatedAt
         )
     }
 }
@@ -114,7 +139,13 @@ data class ClaimHandleRequest(
     @field:NotBlank val iban: String,
     @field:NotBlank @field:Size(min = 2, max = 100) val customerDisplayName: String,
     @field:NotBlank val bankCustomerRef: String,
-    val setAsDefault: Boolean? = true
+    val setAsDefault: Boolean? = true,
+
+    @field:Pattern(regexp = "^[0-9]{12}$", message = "National ID must be exactly 12 digits")
+    val nationalId: String? = null,
+
+    @field:Pattern(regexp = "^[0-9+\\-]{7,20}$", message = "Invalid phone number format")
+    val phone: String? = null
 )
 
 data class LinkAccountRequest(
@@ -123,9 +154,12 @@ data class LinkAccountRequest(
     val setAsDefault: Boolean? = false
 )
 
-data class UpdateAccountRequest(@field:NotBlank val iban: String)
+data class UpdateAccountRequest(
+    @field:NotBlank val bankHandle: String,
+    @field:NotBlank val newIban: String
+)
 
-data class SetDefaultRequest(@field:NotBlank val bankHandle: String)
+data class SetDefaultBankRequest(@field:NotBlank val bankHandle: String)
 
 data class IdentityResponse(
     val nptHandle: String,
@@ -133,6 +167,7 @@ data class IdentityResponse(
     val status: String,
     val defaultBankHandle: String?,
     val linkedBanks: List<String>,
+    val nationalIdPresent: Boolean,
     val createdAt: Instant,
     val updatedAt: Instant
 )
@@ -152,7 +187,10 @@ data class LinkedAccountsResponse(
 
 data class LinkedAccountResponse(
     val bankHandle: String,
+    val iban: String,
     val ibanMasked: String,
+    val displayName: String?,
+    val currency: String,
     val isDefault: Boolean,
     val linkedAt: Instant
 )
@@ -170,7 +208,8 @@ fun IdentityEntity.toResponse() = IdentityResponse(
     displayName       = displayName,
     status            = status.name,
     defaultBankHandle = defaultBankHandle,
-    linkedBanks       = linkedAccounts.map { it.bankHandle },
+    linkedBanks       = linkedAccounts.map { it.bankHandle }.distinct(),
+    nationalIdPresent = nationalId != null,
     createdAt         = createdAt,
     updatedAt         = updatedAt
 )
@@ -185,7 +224,10 @@ fun IdentityEntity.toPublicProfile(accountCount: Int) = PublicProfileResponse(
 
 fun LinkedAccountEntity.toResponse() = LinkedAccountResponse(
     bankHandle  = bankHandle,
+    iban        = iban,
     ibanMasked  = maskIban(iban),
+    displayName = displayName,
+    currency    = currency,
     isDefault   = isDefault,
     linkedAt    = linkedAt
 )

@@ -33,15 +33,17 @@ class ResolutionService(
         val targetBank = bankHint ?: identity.defaultBankHandle
             ?: throw IdentityNotFoundException("$alias (no default account set)")
 
-        val link = linkedAccountRepo.findByIdentityIdAndBankHandle(identity.id, targetBank)
-            ?: throw IdentityNotFoundException("$alias (no account linked for bank '$targetBank')")
+        // Pick the default IBAN for this bank; fall back to first if none marked default
+        val bankAccounts = linkedAccountRepo.findAllByIdentityIdAndBankHandle(identity.id, targetBank)
+        if (bankAccounts.isEmpty()) throw IdentityNotFoundException("$alias (no account linked for bank '$targetBank')")
+        val link = bankAccounts.firstOrNull { it.isDefault } ?: bankAccounts.first()
 
         return AliasResolution(
-            nptHandle = identity.nptHandle,
-            bankHandle = link.bankHandle,
-            iban = link.iban,
+            nptHandle   = identity.nptHandle,
+            bankHandle  = link.bankHandle,
+            iban        = link.iban,
             displayName = identity.displayName,
-            isDefault = link.bankHandle == identity.defaultBankHandle
+            isDefault   = link.bankHandle == identity.defaultBankHandle
         )
     }
 
