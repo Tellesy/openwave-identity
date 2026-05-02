@@ -33,31 +33,37 @@ class IdentityService(
     ): IdentityEntity {
         if (!HANDLE_REGEX.matches(nptHandle)) throw HandleInvalidFormatException(nptHandle)
 
-        // Validate national_id format if provided (Libya: 12 digits)
-        if (nationalId != null && !nationalId.matches(Regex("^[0-9]{12}$"))) {
-            throw HandleInvalidFormatException("National ID must be exactly 12 digits: $nationalId")
+        // CRITICAL: National ID is REQUIRED for cross-bank identity verification
+        if (nationalId == null || !nationalId.matches(Regex("^[0-9]{12}$"))) {
+            throw HandleInvalidFormatException("National ID is required and must be exactly 12 digits")
         }
 
         bankRepo.findByBankHandle(bankHandle) ?: throw BankNotFoundException(bankHandle)
 
-        val existing = identityRepo.findByNptHandle(nptHandle)
-        if (existing != null) {
+        // STEP 1: Check if this National ID already has an identity (PRIMARY KEY)
+        val existingByNationalId = identityRepo.findByNationalId(nationalId)
+        if (existingByNationalId != null) {
+            // Customer already exists with a different username!
+            if (existingByNationalId.nptHandle != nptHandle) {
+                throw HandleTakenException(
+                    "Customer with National ID $nationalId already has username '${existingByNationalId.nptHandle}'. " +
+                    "Please use existing username instead of '$nptHandle'."
+                )
+            }
+            // Same national ID, same username - proceed to link account
+            val existing = existingByNationalId
+            
             // Identity exists — check if this IBAN is already linked (idempotent)
             if (linkedAccountRepo.existsByIdentityIdAndIban(existing.id, iban)) return existing
 
-            // CRITICAL: If existing identity has a national_id, new bank MUST provide the same one.
-            // This prevents bank B from hijacking a handle that belongs to a different person.
-            if (existing.nationalId != null && nationalId != null && existing.nationalId != nationalId) {
+            // CRITICAL: Verify phone number matches if both provided
+            if (existing.phone != null && phone != null && existing.phone != phone) {
                 throw ForbiddenException(
-                    "National ID mismatch: handle '$nptHandle' is already registered to a different national ID. " +
-                    "Cross-bank enrollment requires the same customer identity."
+                    "Phone number mismatch: handle '$nptHandle' has phone ${existing.phone} but bank provided $phone. " +
+                    "Both National ID AND phone must match for cross-bank enrollment."
                 )
             }
-            // If existing has no national_id yet and new bank provides one, store it
-            if (existing.nationalId == null && nationalId != null) {
-                existing.nationalId = nationalId
-                existing.updatedAt = Instant.now()
-            }
+            // Update phone if not set (national_id already verified above)
             if (existing.phone == null && phone != null) {
                 existing.phone = phone
                 existing.updatedAt = Instant.now()
@@ -86,12 +92,22 @@ class IdentityService(
             return existing
         }
 
-        // Brand new identity — save with national_id and phone
+        // STEP 2: Check if username is taken by someone else
+        val existingByHandle = identityRepo.findByNptHandle(nptHandle)
+        if (existingByHandle != null) {
+            // Username exists but different national ID - REJECT
+            throw HandleTakenException(
+                "Username '$nptHandle' is already taken by another customer (National ID: ${existingByHandle.nationalId}). " +
+                "Please choose a different username."
+            )
+        }
+
+        // Brand new identity — save with national_id and phone (both REQUIRED)
         val identity = IdentityEntity(
             nptHandle         = nptHandle,
             displayName       = displayName,
             defaultBankHandle = if (setAsDefault) bankHandle else null,
-            nationalId        = nationalId,
+            nationalId        = nationalId,  // REQUIRED
             phone             = phone
         )
         identityRepo.save(identity)

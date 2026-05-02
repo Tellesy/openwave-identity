@@ -21,6 +21,7 @@ interface BankRepository : JpaRepository<BankEntity, Long> {
 @Repository
 interface IdentityRepository : JpaRepository<IdentityEntity, Long> {
     fun findByNptHandle(handle: String): IdentityEntity?
+    fun findByNationalId(nationalId: String): IdentityEntity?
     fun existsByNptHandle(handle: String): Boolean
     fun countByStatusNot(status: ly.openwave.identity.entity.IdentityStatus): Long
 }

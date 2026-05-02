@@ -2,13 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
   margin: 0;
-  background: #0f172a;
-  color: #f1f5f9;
-  font-family: system-ui, -apple-system, sans-serif;
+  padding: 0;
+  background: #050508;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-#app {
-  min-height: 100vh;
+select option {
+  background: #0d0d18;
+  color: #fff;
 }
