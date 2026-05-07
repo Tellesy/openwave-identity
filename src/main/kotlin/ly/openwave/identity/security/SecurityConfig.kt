@@ -27,7 +27,8 @@ const val ROLE_BANK        = "ROLE_BANK"
 @EnableWebSecurity
 class SecurityConfig(
     private val props: RegistryProperties,
-    private val bankService: BankService
+    private val bankService: BankService,
+    private val portalTokenService: PortalTokenService
 ) {
 
     @Bean
@@ -53,16 +54,18 @@ class SecurityConfig(
                     "/identity/resolve",
                     "/banks",
                     "/banks/*",
+                    "/auth/login",
                     "/registry/info",
                     "/actuator/health"
                 ).permitAll()
                 // Admin only
                 it.requestMatchers("POST:/banks").hasRole("ADMIN")
                 it.requestMatchers("PATCH:/banks/*").hasRole("ADMIN")
+                it.requestMatchers("/portal-users/**").hasAnyRole("ADMIN", "BANK")
                 // Bank-authenticated
                 it.anyRequest().hasAnyRole("BANK", "ADMIN")
             }
-            .addFilterBefore(ApiKeyFilter(props, bankService), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(ApiKeyFilter(props, bankService, portalTokenService), UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }
@@ -70,14 +73,32 @@ class SecurityConfig(
 
 class ApiKeyFilter(
     private val props: RegistryProperties,
-    private val bankService: BankService
+    private val bankService: BankService,
+    private val portalTokenService: PortalTokenService
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(req: HttpServletRequest, res: HttpServletResponse, chain: FilterChain) {
         val adminKey = req.getHeader("X-OpenWave-Registry-Key")
         val bankKey  = req.getHeader("X-OpenWave-Bank-Key")
+        val portalSession = portalTokenService.verify(req.getHeader("X-OpenWave-Portal-Session"))
 
         when {
+            portalSession?.role == "ADMIN" -> {
+                val auth = UsernamePasswordAuthenticationToken(
+                    portalSession.subject, null, listOf(SimpleGrantedAuthority(ROLE_ADMIN))
+                )
+                SecurityContextHolder.getContext().authentication = auth
+            }
+            portalSession?.role == "BANK" && portalSession.bankHandle != null -> {
+                val bank = runCatching { bankService.getBank(portalSession.bankHandle) }.getOrNull()
+                if (bank != null && bank.active) {
+                    val auth = UsernamePasswordAuthenticationToken(
+                        portalSession.subject, null, listOf(SimpleGrantedAuthority(ROLE_BANK))
+                    )
+                    auth.details = bank
+                    SecurityContextHolder.getContext().authentication = auth
+                }
+            }
             adminKey != null && adminKey == props.adminKey -> {
                 val auth = UsernamePasswordAuthenticationToken(
                     "registry-admin", null, listOf(SimpleGrantedAuthority(ROLE_ADMIN))

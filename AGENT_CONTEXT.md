@@ -68,7 +68,19 @@ Handle: mtellesy            │  handle → accounts   │
 - **Bank-vouched** — a bank must vouch for the customer before a handle is registered
 - **Governance-first** — banks can flag disputes; handles can be locked by governance
 - **No financial data stored** — only IBAN + bank handle routing data (no balances, no transactions)
+- **No CBS data stored** — CBS-internal customer IDs, account classes, or core references must NEVER be stored here. The registry maps alias → IBAN only. Banks derive CBS identifiers from the IBAN themselves.
 - **Cross-gateway federation** — any compliant gateway queries this registry
+
+> **Privacy principle (mandatory for all implementors):**
+> The Identity Registry and the OpenWave gateway are **not** bank core systems.
+> They route payments using IBANs only.
+> CBS customer IDs are bank-internal data — they must never appear in:
+> - Identity Registry records
+> - Astro payment session entities
+> - Any OpenWave API request or response payload
+>
+> When a bank needs to act on a customer (e.g. send OTP), it receives the IBAN
+> from the gateway and resolves the CBS customer ID **internally** from its own account store.
 
 ---
 

@@ -57,6 +57,41 @@ class IdentityController(private val identityService: IdentityService) {
         )
     }
 
+    @GetMapping("/accounts")
+    fun listCallerBankAliases(
+        @RequestParam(required = false, defaultValue = "true") activeOnly: Boolean
+    ): BankAliasesResponse {
+        val bankHandle = callerBankHandle()
+        val identities = identityService.listAliasesForBank(bankHandle, activeOnly)
+        return BankAliasesResponse(
+            bankHandle = bankHandle,
+            total = identities.size,
+            aliases = identities.map { identity ->
+                val bankAccounts = identity.linkedAccounts
+                    .filter { it.bankHandle == bankHandle }
+                    .sortedWith(compareByDescending<LinkedAccountEntity> { it.isDefault }.thenBy { it.id })
+                BankAliasResponse(
+                    alias = "${identity.nptHandle}@$bankHandle",
+                    aliasUsername = identity.nptHandle,
+                    fullAlias = "${identity.nptHandle}@$bankHandle",
+                    customerId = bankAccounts.firstOrNull()?.bankCustomerRef ?: "",
+                    customerPhone = identity.phone,
+                    isActive = identity.status == ly.openwave.identity.entity.IdentityStatus.ACTIVE,
+                    enrolledAt = bankAccounts.firstOrNull()?.linkedAt ?: identity.createdAt,
+                    accounts = bankAccounts.map { account ->
+                        BankAliasAccountResponse(
+                            accountId = account.id,
+                            ibanMasked = maskIban(account.iban),
+                            accountName = account.displayName,
+                            currency = account.currency,
+                            isDefault = account.isDefault
+                        )
+                    }
+                )
+            }
+        )
+    }
+
     @PostMapping("/{nptHandle}/accounts")
     @ResponseStatus(HttpStatus.CREATED)
     fun linkAccount(
@@ -70,6 +105,16 @@ class IdentityController(private val identityService: IdentityService) {
             bankCustomerRef = req.bankCustomerRef,
             setAsDefault    = req.setAsDefault ?: false
         ).toResponse()
+    }
+
+    @PatchMapping("/accounts/{accountId}/set-default")
+    fun setDefaultAccountById(@PathVariable accountId: Long): LinkedAccountResponse =
+        identityService.setDefaultAccountById(accountId, callerBankHandle()).toResponse()
+
+    @DeleteMapping("/accounts/{accountId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun unlinkAccountById(@PathVariable accountId: Long) {
+        identityService.unlinkAccountById(accountId, callerBankHandle())
     }
 
     @GetMapping("/{nptHandle}/accounts/{bankHandle}")
@@ -160,6 +205,31 @@ data class UpdateAccountRequest(
 )
 
 data class SetDefaultBankRequest(@field:NotBlank val bankHandle: String)
+
+data class BankAliasesResponse(
+    val bankHandle: String,
+    val total: Int,
+    val aliases: List<BankAliasResponse>
+)
+
+data class BankAliasResponse(
+    val alias: String,
+    val aliasUsername: String,
+    val fullAlias: String,
+    val customerId: String,
+    val customerPhone: String?,
+    val isActive: Boolean,
+    val enrolledAt: Instant,
+    val accounts: List<BankAliasAccountResponse>
+)
+
+data class BankAliasAccountResponse(
+    val accountId: Long,
+    val ibanMasked: String,
+    val accountName: String?,
+    val currency: String,
+    val isDefault: Boolean
+)
 
 data class IdentityResponse(
     val nptHandle: String,

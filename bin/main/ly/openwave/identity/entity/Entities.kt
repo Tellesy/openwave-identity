@@ -27,6 +27,12 @@ class BankEntity(
     @Column(name = "api_key_hash", nullable = false, length = 64)
     val apiKeyHash: String,
 
+    @Column(name = "portal_username", unique = true, length = 80)
+    var portalUsername: String? = null,
+
+    @Column(name = "portal_password_hash", length = 255)
+    var portalPasswordHash: String? = null,
+
     @Column(name = "active", nullable = false)
     var active: Boolean = true,
 
@@ -35,6 +41,46 @@ class BankEntity(
 
     @Column(name = "updated_at", nullable = false)
     var updatedAt: Instant = Instant.now()
+)
+
+enum class PortalRole { REGISTRY_ADMIN, REGISTRY_OPERATOR, BANK_ADMIN, BANK_OPERATOR, BANK_VIEWER }
+
+@Entity
+@Table(name = "portal_users")
+class PortalUserEntity(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0,
+
+    @Column(name = "username", nullable = false, unique = true, length = 80)
+    var username: String,
+
+    @Column(name = "password_hash", nullable = false, length = 255)
+    var passwordHash: String,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 32)
+    var role: PortalRole,
+
+    @Column(name = "bank_handle", length = 20)
+    var bankHandle: String? = null,
+
+    @Column(name = "display_name", nullable = false, length = 100)
+    var displayName: String,
+
+    @Column(name = "email", length = 255)
+    var email: String? = null,
+
+    @Column(name = "active", nullable = false)
+    var active: Boolean = true,
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    val createdAt: Instant = Instant.now(),
+
+    @Column(name = "updated_at", nullable = false)
+    var updatedAt: Instant = Instant.now(),
+
+    @Column(name = "last_login_at")
+    var lastLoginAt: Instant? = null
 )
 
 enum class IdentityStatus { ACTIVE, SUSPENDED, DELETED }

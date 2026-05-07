@@ -4,16 +4,26 @@
   import { page } from '$app/stores';
   import { auth } from '$lib/stores/auth';
   import { get } from 'svelte/store';
-  import { LogOut, LayoutDashboard, Users, Building2, Settings } from 'lucide-svelte';
-
+  import LogOut from 'lucide-svelte/icons/log-out';
+  import LayoutDashboard from 'lucide-svelte/icons/layout-dashboard';
+  import Users from 'lucide-svelte/icons/users';
+  import Building2 from 'lucide-svelte/icons/building-2';
+  import Settings from 'lucide-svelte/icons/settings';
+  import UserCog from 'lucide-svelte/icons/user-cog';
+  import Moon from 'lucide-svelte/icons/moon';
+  import Sun from 'lucide-svelte/icons/sun';
+  import { theme } from '$lib/stores/theme';
   let { children } = $props();
   let session = $state(null);
   let ready   = $state(false);
+  let currentTheme = $state('light');
 
   const unsub = auth.subscribe(s => session = s);
-  onDestroy(unsub);
+  const unsubTheme = theme.subscribe(t => currentTheme = t);
+  onDestroy(() => { unsub(); unsubTheme(); });
 
   onMount(() => {
+    theme.init();
     const s = get(auth);
     if (!s?.role) { goto('/login'); return; }
     session = s;
@@ -29,6 +39,7 @@
     { href: '/portal',           label: 'Dashboard',  icon: LayoutDashboard, exact: true,  roles: ['ADMIN','BANK'] },
     { href: '/portal/identity',  label: 'Identity',   icon: Users,           exact: false, roles: ['ADMIN','BANK'] },
     { href: '/portal/banks',     label: 'Banks',      icon: Building2,       exact: false, roles: ['ADMIN','BANK'] },
+    { href: '/portal/users',     label: 'Users',      icon: UserCog,         exact: false, roles: ['ADMIN','BANK'] },
     { href: '/portal/manage',    label: 'Manage',     icon: Settings,        exact: false, roles: ['ADMIN'] },
   ];
 
@@ -41,26 +52,21 @@
 </script>
 
 {#if !ready}
-  <div class="min-h-screen bg-[#050508] flex items-center justify-center">
+  <div class="ow-theme-root min-h-screen bg-[#050508] flex items-center justify-center" data-theme={currentTheme}>
     <div class="w-6 h-6 border-2 border-white/20 border-t-indigo-500 rounded-full animate-spin"></div>
   </div>
 {:else}
-<div class="min-h-screen bg-[#050508] text-white flex" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;">
+<div class="ow-theme-root min-h-screen bg-[#050508] text-white flex" data-theme={currentTheme} style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;">
 
   <!-- Sidebar -->
   <aside class="w-56 bg-white/[0.025] border-r border-white/[0.07] flex flex-col shrink-0 fixed inset-y-0 left-0 z-40">
 
     <!-- Logo -->
     <div class="px-5 py-5 flex items-center gap-3 border-b border-white/[0.06]">
-      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shrink-0 shadow-[0_0_16px_rgba(99,102,241,0.4)]">
-        <svg width="16" height="16" viewBox="0 0 28 28" fill="none">
-          <path d="M14 3L25 9V19L14 25L3 19V9L14 3Z" stroke="white" stroke-width="2" fill="none"/>
-          <circle cx="14" cy="14" r="3" fill="white"/>
-        </svg>
-      </div>
+      <div class="ow-logo-mark shrink-0 !w-8 !h-8 !rounded-xl"><span>OW</span></div>
       <div class="min-w-0">
-        <div class="text-[13px] font-semibold text-white truncate">OpenWave</div>
-        <div class="text-[10px] text-white/30 truncate">Identity Registry</div>
+        <div class="ow-logo-word truncate !text-[13px]">OW Identity</div>
+        <div class="ow-logo-sub truncate !text-[10px]">NPT handle registry</div>
       </div>
     </div>
 
@@ -117,13 +123,20 @@
       <div class="text-[12px] text-white/30">
         {#if session?.role === 'ADMIN'}
           <span class="text-indigo-400 font-medium">Registry Admin</span>
-          · Full access
+          - {session?.portalRole || 'Full access'}
         {:else}
           <span class="text-emerald-400 font-medium">Bank Portal</span>
-          · Scoped to your bank
+          - {session?.portalRole || 'Scoped to your bank'}
         {/if}
       </div>
       <div class="flex items-center gap-3">
+        <button
+          onclick={() => theme.toggle()}
+          class="w-8 h-8 rounded-xl border border-white/[0.08] bg-white/[0.035] hover:bg-white/[0.06] text-white/55 hover:text-white flex items-center justify-center transition-all"
+          title="Toggle theme"
+        >
+          {#if currentTheme === 'dark'}<Sun class="w-4 h-4" />{:else}<Moon class="w-4 h-4" />{/if}
+        </button>
         <div class="text-[11px] px-2.5 py-1 rounded-full border
           {session?.role === 'ADMIN'
             ? 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20'

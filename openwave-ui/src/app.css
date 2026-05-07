@@ -7,14 +7,177 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: #050508;
+  background: #07070a;
   color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  font-family: "SF Compact Rounded", "SF Pro Rounded", "Beiruti", -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+[data-theme='light'].ow-theme-root,
+[data-theme='light'] .ow-theme-root,
+.ow-theme-root[data-theme='light'] {
+  background: #f5f5f7 !important;
+  color: #1d1d1f !important;
+}
+
+.ow-theme-root[data-theme='light'] .bg-\[\#050508\],
+.ow-theme-root[data-theme='light'].bg-\[\#050508\] {
+  background: #f5f5f7 !important;
+}
+
+.ow-theme-root[data-theme='light'] .bg-\[\#0d0d14\],
+.ow-theme-root[data-theme='light'] .bg-\[\#0d0d18\] {
+  background: #ffffff !important;
+}
+
+.ow-theme-root[data-theme='light'] .text-white {
+  color: #1d1d1f !important;
+}
+
+.ow-theme-root[data-theme='light'] .text-white\/70,
+.ow-theme-root[data-theme='light'] .text-white\/60,
+.ow-theme-root[data-theme='light'] .text-white\/50,
+.ow-theme-root[data-theme='light'] .text-white\/40 {
+  color: rgba(29, 29, 31, 0.68) !important;
+}
+
+.ow-theme-root[data-theme='light'] .text-white\/35,
+.ow-theme-root[data-theme='light'] .text-white\/30,
+.ow-theme-root[data-theme='light'] .text-white\/25,
+.ow-theme-root[data-theme='light'] .text-white\/20 {
+  color: rgba(29, 29, 31, 0.45) !important;
+}
+
+.ow-theme-root[data-theme='light'] .bg-white\/\[0\.015\],
+.ow-theme-root[data-theme='light'] .bg-white\/\[0\.02\],
+.ow-theme-root[data-theme='light'] .bg-white\/\[0\.025\],
+.ow-theme-root[data-theme='light'] .bg-white\/\[0\.03\],
+.ow-theme-root[data-theme='light'] .bg-white\/\[0\.035\],
+.ow-theme-root[data-theme='light'] .bg-white\/\[0\.04\],
+.ow-theme-root[data-theme='light'] .bg-white\/\[0\.05\] {
+  background: rgba(255, 255, 255, 0.78) !important;
+}
+
+.ow-theme-root[data-theme='light'] .border-white\/\[0\.06\],
+.ow-theme-root[data-theme='light'] .border-white\/\[0\.07\],
+.ow-theme-root[data-theme='light'] .border-white\/\[0\.08\],
+.ow-theme-root[data-theme='light'] .border-white\/\[0\.09\],
+.ow-theme-root[data-theme='light'] .border-white\/\[0\.1\] {
+  border-color: rgba(0, 0, 0, 0.09) !important;
+}
+
+.ow-theme-root[data-theme='light'] input,
+.ow-theme-root[data-theme='light'] select,
+.ow-theme-root[data-theme='light'] textarea {
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: #1d1d1f !important;
+}
+
+.ow-theme-root[data-theme='light'] input::placeholder {
+  color: rgba(29, 29, 31, 0.34) !important;
 }
 
 select option {
   background: #0d0d18;
   color: #fff;
 }
+
+.ow-logo-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.ow-logo-mark {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.9rem;
+  background: #07315F;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 18px 44px rgba(124, 58, 237, 0.22);
+  position: relative;
+  overflow: hidden;
+}
+
+.ow-logo-mark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 25% 15%, rgba(59, 193, 238, 0.45), transparent 38%),
+    linear-gradient(135deg, rgba(7, 49, 95, 0.95), rgba(235, 78, 77, 0.78));
+  opacity: 0.95;
+}
+
+.ow-logo-mark span {
+  position: relative;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.ow-logo-word {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.05;
+  font-weight: 760;
+  letter-spacing: 0;
+  background: linear-gradient(135deg, #07315F 10%, #EB4E4D 52%, #00A8AE 92%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ow-logo-sub {
+  margin: 0.15rem 0 0;
+  color: rgba(255, 255, 255, 0.36);
+  font-size: 0.68rem;
+  font-weight: 560;
+  letter-spacing: 0.02em;
+}
+
+.ow-theme-root[data-theme='light'] .ow-logo-sub {
+  color: rgba(29, 29, 31, 0.56);
+}
+
+.neptune-splash {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 24px;
+  color: white;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(235, 78, 77, .18), transparent 28%),
+    linear-gradient(135deg, #07315F, #041A33 68%, #020915);
+}
+.neptune-splash::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .14;
+  background-image:
+    linear-gradient(90deg, transparent 0 23px, rgba(235, 78, 77, .34) 23px 24px),
+    linear-gradient(0deg, transparent 0 23px, rgba(59, 193, 238, .24) 23px 24px);
+  background-size: 24px 24px;
+}
+.neptune-signal-mark { position: relative; width: 112px; height: 112px; display: grid; place-items: center; }
+.neptune-signal-mark::before,
+.neptune-signal-mark::after { content: ""; position: absolute; inset: 0; border: 1px solid rgba(235, 78, 77, .48); border-radius: 50%; }
+.neptune-signal-mark::before { animation: neptuneOrbitSpin 1.7s cubic-bezier(.2,.8,.2,1) infinite; }
+.neptune-signal-mark::after { inset: 16px; border-color: rgba(240, 206, 157, .52); transform: rotate(-24deg) scaleX(1.18); }
+.neptune-signal-core { position: relative; width: 58px; height: 58px; display: grid; place-items: center; color: #07315F; background: #EB4E4D; border-radius: 16px; box-shadow: 0 18px 38px rgba(0,0,0,.18); }
+.neptune-signal-core svg { width: 34px; height: 34px; stroke-width: 2.25; }
+.neptune-signal-dot { position: absolute; top: 10px; right: 5px; width: 13px; height: 13px; background: #00A8AE; border: 3px solid #07315F; border-radius: 50%; animation: neptuneSignalPulse 1.7s ease-in-out infinite; }
+.neptune-splash-copy { display: grid; gap: 5px; text-align: center; position: relative; }
+.neptune-splash-copy b { font-size: 19px; letter-spacing: 0; }
+.neptune-splash-copy span { color: rgba(255,255,255,.68); font-size: 12px; font-weight: 760; }
+@keyframes neptuneOrbitSpin { 0% { transform: rotate(-24deg) scaleX(1.26); } 100% { transform: rotate(336deg) scaleX(1.26); } }
+@keyframes neptuneSignalPulse { 0%, 100% { transform: scale(.82); opacity: .72; } 50% { transform: scale(1); opacity: 1; } }

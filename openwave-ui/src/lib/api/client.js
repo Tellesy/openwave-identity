@@ -7,6 +7,7 @@ export function getApi() {
   const baseURL = s?.baseUrl || '/v1';
 
   const headers = {};
+  if (s?.sessionToken) headers['X-OpenWave-Portal-Session'] = s.sessionToken;
   if (s?.role === 'ADMIN' && s.adminKey) headers['X-OpenWave-Registry-Key'] = s.adminKey;
   if (s?.role === 'BANK' && s.bankKey)   headers['X-OpenWave-Bank-Key'] = s.bankKey;
 

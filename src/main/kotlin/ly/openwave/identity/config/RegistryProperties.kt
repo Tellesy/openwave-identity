@@ -14,6 +14,8 @@ class RegistryProperties {
     var futureOperator: String = ""
     var uptimeSla: String = "99.9%"
     var adminKey: String = ""
+    var adminUsername: String = "ow_admin"
+    var adminPassword: String = ""
     var resolveCacheTtlSeconds: Int = 60
     var resolveRateLimitPerMinute: Int = 120
 }

@@ -81,7 +81,7 @@
     <div class="rounded-2xl bg-amber-950/30 border border-amber-500/30 p-5 mb-6">
       <div class="flex items-center gap-2 mb-3">
         <div class="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
-        <span class="text-[13px] font-semibold text-amber-300">Save this Bank API Key — shown only once</span>
+        <span class="text-[13px] font-semibold text-amber-300">Save this Bank Access Credential — shown only once</span>
       </div>
       <code class="block font-mono text-sm text-amber-200 bg-black/30 rounded-xl px-4 py-3 break-all">{newBankKey}</code>
       <button onclick={copyKey} class="mt-3 text-[12px] text-amber-400/60 hover:text-amber-400 transition-colors">

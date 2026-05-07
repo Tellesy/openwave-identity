@@ -50,6 +50,28 @@ fast and cached (60-second TTL).
 
 ---
 
+## Role in Gateway Interconnect
+
+OpenWave Identity remains the source of truth for **who owns an NPT handle**. In a multi-gateway ecosystem, the registry is used before OW-GIP routing:
+
+1. Gateway A receives a payment to `mtellesy`.
+2. Gateway A resolves the handle through OpenWave Identity.
+3. The response identifies the bank handle and account routing metadata.
+4. If the owning bank is served by another gateway, Gateway A uses the
+   [OpenWave Gateway Interconnect Protocol](https://github.com/openwave-standard/openwave-spec/blob/main/openwave-gateway-interconnect-v1.yaml)
+   to call Gateway B through `resolve-alias-remote` and `route-payment`.
+
+The registry does **not** execute payments, hold funds, or replace gateway-to-gateway settlement. It provides identity and routing facts; OW-GIP handles gateway discovery, remote routing, payment status, health, and interconnect settlement.
+
+Recommended production topology:
+
+```text
+Merchant → Gateway A → OpenWave Identity
+                    └→ Gateway B (OW-GIP) → Bank Core
+```
+
+---
+
 ## API Overview
 
 | Method | Path | Auth | Purpose |

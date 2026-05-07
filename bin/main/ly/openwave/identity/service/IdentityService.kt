@@ -222,6 +222,23 @@ class IdentityService(
     }
 
     @Transactional
+    fun setDefaultAccountById(accountId: Long, callerBankHandle: String): LinkedAccountEntity {
+        val link = linkedAccountRepo.findByIdAndBankHandle(accountId, callerBankHandle)
+            ?: throw AccountNotFoundException(accountId.toString())
+        linkedAccountRepo.clearBankDefaults(link.identity.id, callerBankHandle)
+        link.isDefault = true
+        link.updatedAt = Instant.now()
+        return linkedAccountRepo.save(link)
+    }
+
+    @Transactional
+    fun unlinkAccountById(accountId: Long, callerBankHandle: String) {
+        val link = linkedAccountRepo.findByIdAndBankHandle(accountId, callerBankHandle)
+            ?: throw AccountNotFoundException(accountId.toString())
+        unlinkAccount(link.identity.nptHandle, link.iban, link.bankHandle, callerBankHandle)
+    }
+
+    @Transactional
     fun setDefaultBank(nptHandle: String, bankHandle: String, callerBankHandle: String): IdentityEntity {
         val identity = identityRepo.findByNptHandle(nptHandle) ?: throw IdentityNotFoundException(nptHandle)
         if (!linkedAccountRepo.existsByIdentityIdAndBankHandle(identity.id, bankHandle))
@@ -260,6 +277,15 @@ class IdentityService(
         if (callerBankHandle != bankHandle) throw ForbiddenException("Bank '$callerBankHandle' cannot view '$bankHandle' accounts")
         val identity = identityRepo.findByNptHandle(nptHandle) ?: throw IdentityNotFoundException(nptHandle)
         return linkedAccountRepo.findAllByIdentityIdAndBankHandle(identity.id, bankHandle)
+    }
+
+    fun listAliasesForBank(callerBankHandle: String, activeOnly: Boolean): List<IdentityEntity> {
+        val accounts = linkedAccountRepo.findAllByBankHandle(callerBankHandle)
+        return accounts
+            .map { it.identity }
+            .distinctBy { it.id }
+            .filter { !activeOnly || it.status == IdentityStatus.ACTIVE }
+            .sortedBy { it.nptHandle }
     }
 
     fun countActiveIdentities(): Long =

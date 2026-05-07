@@ -4,6 +4,7 @@ import ly.openwave.identity.entity.BankEntity
 import ly.openwave.identity.exception.BankHandleTakenException
 import ly.openwave.identity.exception.BankNotFoundException
 import ly.openwave.identity.repository.BankRepository
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.security.MessageDigest
@@ -11,10 +12,11 @@ import java.security.SecureRandom
 import java.time.Instant
 import java.util.*
 
-data class BankRegistrationResult(val bank: BankEntity, val rawApiKey: String)
+data class BankRegistrationResult(val bank: BankEntity, val rawApiKey: String, val portalUsername: String, val portalPassword: String)
 
 @Service
 class BankService(private val bankRepo: BankRepository) {
+    private val passwordEncoder = BCryptPasswordEncoder()
 
     @Transactional
     fun registerBank(
@@ -27,6 +29,8 @@ class BankService(private val bankRepo: BankRepository) {
         if (bankRepo.existsByBankHandle(bankHandle)) throw BankHandleTakenException(bankHandle)
         val rawKey = generateKey(bankHandle)
         val hash = sha256(rawKey)
+        val portalUsername = "${bankHandle}_admin"
+        val portalPassword = generatePortalPassword()
         val bank = bankRepo.save(
             BankEntity(
                 bankHandle = bankHandle,
@@ -34,10 +38,12 @@ class BankService(private val bankRepo: BankRepository) {
                 country = country.uppercase(),
                 coreUrl = coreUrl,
                 contactEmail = contactEmail,
-                apiKeyHash = hash
+                apiKeyHash = hash,
+                portalUsername = portalUsername,
+                portalPasswordHash = passwordEncoder.encode(portalPassword)
             )
         )
-        return BankRegistrationResult(bank, rawKey)
+        return BankRegistrationResult(bank, rawKey, portalUsername, portalPassword)
     }
 
     fun getBank(bankHandle: String): BankEntity =
@@ -61,11 +67,22 @@ class BankService(private val bankRepo: BankRepository) {
 
     fun resolveByApiKey(apiKey: String): BankEntity? = bankRepo.findByApiKeyHash(sha256(apiKey))
 
+    fun resolveByPortalLogin(username: String, password: String): BankEntity? {
+        val bank = bankRepo.findByPortalUsername(username) ?: return null
+        val hash = bank.portalPasswordHash ?: return null
+        return if (bank.active && passwordEncoder.matches(password, hash)) bank else null
+    }
+
     fun count(): Long = bankRepo.count()
 
     private fun generateKey(bankHandle: String): String {
         val random = ByteArray(32).also { SecureRandom().nextBytes(it) }
         return "owbk_${bankHandle}_${Base64.getUrlEncoder().withoutPadding().encodeToString(random)}"
+    }
+
+    private fun generatePortalPassword(): String {
+        val random = ByteArray(18).also { SecureRandom().nextBytes(it) }
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(random)
     }
 
     private fun sha256(input: String): String {

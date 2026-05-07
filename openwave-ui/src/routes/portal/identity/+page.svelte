@@ -101,7 +101,7 @@
       </div>
       <div class="px-2.5 py-1 rounded-lg border text-[11px]
         {isBank ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400'}">
-        {isBank ? 'Bank Key Active' : 'Admin Mode'}
+        {isBank ? 'Bank Access Active' : 'Admin Mode'}
       </div>
     </div>
 

@@ -46,6 +46,8 @@ class BankController(private val bankService: BankService) {
             bankHandle   = result.bank.bankHandle,
             displayName  = result.bank.displayName,
             bankApiKey   = result.rawApiKey,
+            portalUsername = result.portalUsername,
+            portalPassword = result.portalPassword,
             registeredAt = result.bank.registeredAt
         )
     }
@@ -112,6 +114,8 @@ data class BankRegistrationResponse(
     val bankHandle: String,
     val displayName: String,
     val bankApiKey: String,
+    val portalUsername: String,
+    val portalPassword: String,
     val registeredAt: Instant
 )
 

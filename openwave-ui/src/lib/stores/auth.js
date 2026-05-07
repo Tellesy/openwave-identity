@@ -1,4 +1,5 @@
 import { writable, get } from 'svelte/store';
+import { configuredRegistryUrl } from '$lib/config';
 
 const STORAGE_KEY = 'ow_session';
 const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
@@ -20,12 +21,12 @@ function createAuthStore() {
 
   return {
     subscribe,
-    loginAdmin(adminKey, baseUrl) {
-      const s = { role: 'ADMIN', adminKey, baseUrl: baseUrl || 'http://localhost:8095/v1' };
+    loginAdmin(adminKey, baseUrl, username = 'registry-admin', sessionToken = null, portalRole = 'REGISTRY_ADMIN') {
+      const s = { role: 'ADMIN', portalRole, adminKey, username, sessionToken, baseUrl: baseUrl || configuredRegistryUrl() };
       set(s); saveSession(s);
     },
-    loginBank(bankKey, bankHandle, baseUrl) {
-      const s = { role: 'BANK', bankKey, bankHandle, baseUrl: baseUrl || 'http://localhost:8095/v1' };
+    loginBank(bankKey, bankHandle, baseUrl, username = bankHandle, sessionToken = null, portalRole = 'BANK_ADMIN') {
+      const s = { role: 'BANK', portalRole, bankKey, bankHandle, username, sessionToken, baseUrl: baseUrl || configuredRegistryUrl() };
       set(s); saveSession(s);
     },
     logout() { set(null); saveSession(null); },

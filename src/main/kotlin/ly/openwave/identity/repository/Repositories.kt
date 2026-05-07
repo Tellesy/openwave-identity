@@ -3,6 +3,7 @@ package ly.openwave.identity.repository
 import ly.openwave.identity.entity.BankEntity
 import ly.openwave.identity.entity.IdentityEntity
 import ly.openwave.identity.entity.LinkedAccountEntity
+import ly.openwave.identity.entity.PortalUserEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -12,10 +13,18 @@ import java.time.Instant
 @Repository
 interface BankRepository : JpaRepository<BankEntity, Long> {
     fun findByBankHandle(handle: String): BankEntity?
+    fun findByPortalUsername(username: String): BankEntity?
     fun existsByBankHandle(handle: String): Boolean
     fun findByApiKeyHash(hash: String): BankEntity?
     fun findAllByActiveTrue(): List<BankEntity>
     fun findAllByCountryAndActiveTrue(country: String): List<BankEntity>
+}
+
+@Repository
+interface PortalUserRepository : JpaRepository<PortalUserEntity, Long> {
+    fun findByUsername(username: String): PortalUserEntity?
+    fun existsByUsername(username: String): Boolean
+    fun findAllByBankHandle(bankHandle: String): List<PortalUserEntity>
 }
 
 @Repository
@@ -29,6 +38,8 @@ interface IdentityRepository : JpaRepository<IdentityEntity, Long> {
 @Repository
 interface LinkedAccountRepository : JpaRepository<LinkedAccountEntity, Long> {
     fun findAllByIdentityIdAndBankHandle(identityId: Long, bankHandle: String): List<LinkedAccountEntity>
+    fun findAllByBankHandle(bankHandle: String): List<LinkedAccountEntity>
+    fun findByIdAndBankHandle(id: Long, bankHandle: String): LinkedAccountEntity?
     fun findByIdentityIdAndBankHandleAndIsDefaultTrue(identityId: Long, bankHandle: String): LinkedAccountEntity?
     fun findByIdentityIdAndIban(identityId: Long, iban: String): LinkedAccountEntity?
     fun existsByIdentityIdAndIban(identityId: Long, iban: String): Boolean
