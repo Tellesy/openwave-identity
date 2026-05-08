@@ -42,7 +42,7 @@
       </span>
     </a>
     <div class="identity-actions">
-      <a href="https://neptune.github.io/openwave-spec/" target="_blank" rel="noreferrer">OpenWave Spec</a>
+      <a href="https://neptune-ly.github.io/openwave-spec/" target="_blank" rel="noreferrer">OpenWave Spec</a>
       <button onclick={() => goto(signedIn ? '/portal' : '/login')}>
         {signedIn ? 'Open portal' : 'Sign in'}
       </button>
@@ -60,7 +60,7 @@
       </p>
       <div class="identity-hero-actions">
         <a class="primary" href="/login">Open admin portal</a>
-        <a href="https://github.com/neptune/openwave-identity" target="_blank" rel="noreferrer">View source</a>
+        <a href="https://github.com/neptune-ly/openwave-identity" target="_blank" rel="noreferrer">View source</a>
       </div>
     </div>
 
@@ -133,6 +133,6 @@
   <footer>
     <span>Neptune Fintech</span>
     <span>OpenWave Identity Registry</span>
-    <a href="https://neptune.github.io/openwave-spec/guide/npt.html" target="_blank" rel="noreferrer">NPT guide</a>
+    <a href="https://neptune-ly.github.io/openwave-spec/guide/npt.html" target="_blank" rel="noreferrer">NPT guide</a>
   </footer>
 </main>
