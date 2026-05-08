@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="./docs/neptune-logo.png" alt="Neptune. Financial Technology And Solutions" width="520">
+
 # OpenWave Identity Registry
 
 ### Global National Payment Tag (NPT) Identity & Alias Resolution

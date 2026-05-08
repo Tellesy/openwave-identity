@@ -117,14 +117,13 @@
 
       .neptune {
         margin-bottom: 42px;
-        font-size: clamp(34px, 6vw, 62px);
-        line-height: 1;
-        font-weight: 860;
-        letter-spacing: -0.055em;
+        width: min(430px, 82vw);
+        height: auto;
+        display: block;
       }
 
-      .neptune span {
-        color: var(--coral);
+      .neptune-dark {
+        display: none;
       }
 
       .eyebrow {
@@ -238,6 +237,111 @@
         font-size: 13px;
       }
 
+      .identity-motion {
+        padding: 30px;
+        display: grid;
+        grid-template-columns: minmax(260px, 0.72fr) minmax(420px, 1.28fr);
+        gap: 30px;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: var(--panel);
+        box-shadow: 0 28px 90px rgba(7, 49, 95, 0.1);
+      }
+
+      .motion-copy h2 {
+        margin-bottom: 14px;
+      }
+
+      .motion-copy p:not(.eyebrow) {
+        margin: 0;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      .identity-graphic {
+        min-height: 360px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: color-mix(in srgb, var(--paper) 72%, var(--panel));
+      }
+
+      .identity-graphic svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .id-flow {
+        fill: none;
+        stroke: color-mix(in srgb, var(--navy) 72%, var(--line));
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-dasharray: 10 14;
+        animation: idDash 4.8s linear infinite;
+      }
+
+      .id-flow-b { animation-delay: -1.4s; }
+      .id-flow-c { animation-delay: -2.6s; }
+
+      .id-node rect {
+        fill: var(--panel);
+        stroke: var(--line);
+        stroke-width: 2;
+        filter: drop-shadow(0 12px 22px rgba(7, 49, 95, 0.08));
+      }
+
+      .id-node-core rect {
+        fill: color-mix(in srgb, var(--navy) 10%, var(--panel));
+        stroke: color-mix(in srgb, var(--navy) 42%, var(--line));
+      }
+
+      .id-node text {
+        fill: var(--ink);
+        font: 760 18px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+        text-anchor: middle;
+      }
+
+      .id-node .id-node-sub {
+        fill: var(--muted);
+        font-size: 13px;
+        font-weight: 620;
+      }
+
+      .id-packet {
+        fill: var(--coral);
+        filter: drop-shadow(0 0 10px rgba(235, 78, 77, 0.38));
+      }
+
+      .id-packet-a {
+        offset-path: path("M150 160 C280 110 330 110 460 160 C590 110 640 110 770 160");
+        animation: idPacket 5.8s ease-in-out infinite;
+      }
+
+      .id-packet-b {
+        fill: var(--teal);
+        offset-path: path("M150 360 C280 410 330 410 460 360 C590 410 640 410 770 360");
+        animation: idPacket 6.2s ease-in-out infinite -1.4s;
+      }
+
+      .id-packet-c {
+        fill: var(--navy);
+        offset-path: path("M770 260 C640 260 590 260 460 260 C330 260 280 260 150 260");
+        animation: idPacket 5.4s ease-in-out infinite -2.7s;
+      }
+
+      @keyframes idDash {
+        to { stroke-dashoffset: -48; }
+      }
+
+      @keyframes idPacket {
+        0%, 12% { offset-distance: 0%; opacity: 0; }
+        18%, 82% { opacity: 1; }
+        90%, 100% { offset-distance: 100%; opacity: 0; }
+      }
+
       .section {
         padding: 50px 0;
         border-top: 1px solid var(--line);
@@ -329,12 +433,32 @@
         }
 
         .hero,
+        .identity-motion,
         .grid {
           grid-template-columns: 1fr;
         }
 
+        .identity-motion {
+          padding: 20px;
+        }
+
+        .identity-graphic {
+          min-height: unset;
+          padding: 10px;
+        }
+
         .endpoint {
           grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .id-flow,
+        .id-packet {
+          animation: none !important;
+        }
+        .id-packet {
+          opacity: 0;
         }
       }
 
@@ -349,6 +473,14 @@
 
         .alias {
           background: rgba(255, 255, 255, 0.05);
+        }
+
+        .neptune-default {
+          display: none;
+        }
+
+        .neptune-dark {
+          display: block;
         }
       }
     </style>
@@ -372,7 +504,8 @@
     <main class="shell">
       <section class="hero">
         <div>
-          <div class="neptune">Neptune<span>.</span></div>
+          <img class="neptune neptune-default" src="./neptune-logo.png" alt="Neptune. Financial Technology And Solutions" />
+          <img class="neptune neptune-dark" src="./neptune-logo-light.png" alt="Neptune. Financial Technology And Solutions" />
           <p class="eyebrow">OpenWave Identity Registry</p>
           <h1>One username across every participating bank.</h1>
           <p class="lede">
@@ -399,6 +532,37 @@
           <div class="route"><span>tellesy@nub</span><b>NUB account</b></div>
           <pre>GET /v1/identity/resolve?alias=tellesy</pre>
         </aside>
+      </section>
+
+      <section class="section">
+        <div class="identity-motion" aria-label="Animated NPT identity resolution flow">
+          <div class="motion-copy">
+            <p class="eyebrow">Resolution in motion</p>
+            <h2>A customer owns the handle. Banks vouch for accounts.</h2>
+            <p>
+              Gateways ask the registry where an NPT handle should route. The registry answers
+              with bank-scoped account metadata, while private account details stay behind the
+              bank boundary.
+            </p>
+          </div>
+          <div class="identity-graphic" aria-hidden="true">
+            <svg viewBox="0 0 920 520" role="img">
+              <g>
+                <path class="id-flow id-flow-a" d="M150 160 C280 110 330 110 460 160 C590 110 640 110 770 160"></path>
+                <path class="id-flow id-flow-b" d="M150 360 C280 410 330 410 460 360 C590 410 640 410 770 360"></path>
+                <path class="id-flow id-flow-c" d="M770 260 C640 260 590 260 460 260 C330 260 280 260 150 260"></path>
+              </g>
+              <g class="id-node" transform="translate(54 121)"><rect width="192" height="78" rx="20"></rect><text x="96" y="34">Customer</text><text class="id-node-sub" x="96" y="56">owns handle</text></g>
+              <g class="id-node" transform="translate(54 321)"><rect width="192" height="78" rx="20"></rect><text x="96" y="34">Gateway</text><text class="id-node-sub" x="96" y="56">resolve alias</text></g>
+              <g class="id-node id-node-core" transform="translate(328 205)"><rect width="264" height="110" rx="28"></rect><text x="132" y="45">OW Identity</text><text class="id-node-sub" x="132" y="72">source of truth</text></g>
+              <g class="id-node" transform="translate(674 121)"><rect width="192" height="78" rx="20"></rect><text x="96" y="34">Bank A</text><text class="id-node-sub" x="96" y="56">vouched account</text></g>
+              <g class="id-node" transform="translate(674 321)"><rect width="192" height="78" rx="20"></rect><text x="96" y="34">Bank B</text><text class="id-node-sub" x="96" y="56">vouched account</text></g>
+              <circle class="id-packet id-packet-a" r="7"></circle>
+              <circle class="id-packet id-packet-b" r="7"></circle>
+              <circle class="id-packet id-packet-c" r="7"></circle>
+            </svg>
+          </div>
+        </div>
       </section>
 
       <section class="section">

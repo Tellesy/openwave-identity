@@ -247,6 +247,13 @@ select option {
   padding: 54px 0 72px;
 }
 
+.neptune-public-logo {
+  display: block;
+  width: min(430px, 82vw);
+  height: auto;
+  margin: 0 0 36px;
+}
+
 .identity-kicker {
   margin: 0 0 12px;
   color: #EB4E4D;

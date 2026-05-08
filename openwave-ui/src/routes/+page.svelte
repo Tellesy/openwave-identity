@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { auth } from '$lib/stores/auth';
   import { get } from 'svelte/store';
+  import neptuneLogo from '../assets/neptune-logo.png';
 
   let signedIn = $state(false);
 
@@ -51,6 +52,7 @@
 
   <section class="identity-hero">
     <div>
+      <img class="neptune-public-logo" src={neptuneLogo} alt="Neptune. Financial Technology And Solutions" />
       <p class="identity-kicker">National Payment Tag registry</p>
       <h1>One username. Multiple banks. Public routing, bank-scoped control.</h1>
       <p class="identity-lede">
