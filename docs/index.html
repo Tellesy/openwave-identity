@@ -19,6 +19,9 @@
         --line: #dfe5ea;
         --paper: #f7f7f4;
         --panel: #ffffff;
+        --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --motion-quick: 180ms;
+        --motion-page: 520ms;
       }
 
       * { box-sizing: border-box; }
@@ -105,6 +108,13 @@
         color: var(--ink);
         background: var(--panel);
         box-shadow: 0 14px 34px rgba(7, 49, 95, 0.07);
+        transition: transform var(--motion-quick) var(--motion-ease), box-shadow var(--motion-quick) var(--motion-ease), border-color var(--motion-quick) var(--motion-ease);
+      }
+
+      .nav-links .button:hover {
+        transform: translateY(-2px) scale(1.01);
+        border-color: color-mix(in srgb, var(--navy) 36%, var(--line));
+        box-shadow: 0 18px 40px rgba(7, 49, 95, 0.11);
       }
 
       .hero {
@@ -113,6 +123,15 @@
         grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.75fr);
         align-items: center;
         gap: 48px;
+      }
+
+      .hero > div,
+      .resolve-card {
+        animation: fadeLift var(--motion-page) var(--motion-ease) both;
+      }
+
+      .resolve-card {
+        animation-delay: 120ms;
       }
 
       .neptune {
@@ -248,6 +267,7 @@
         border-radius: 24px;
         background: var(--panel);
         box-shadow: 0 28px 90px rgba(7, 49, 95, 0.1);
+        animation: fadeLift 620ms var(--motion-ease) both;
       }
 
       .identity-flow-card {
@@ -297,8 +317,9 @@
         color: var(--muted);
         background: color-mix(in srgb, var(--paper) 72%, var(--panel));
         line-height: 1.25;
-        animation: idStepFocus 8s infinite;
+        animation: idStepFocus 8s var(--motion-ease) infinite;
         animation-delay: calc(var(--i) * -2s);
+        transition: transform var(--motion-quick) var(--motion-ease), opacity var(--motion-quick) var(--motion-ease), border-color var(--motion-quick) var(--motion-ease);
       }
 
       .id-stage-row b {
@@ -365,6 +386,14 @@
         border-radius: 17px;
         background: var(--panel);
         box-shadow: 0 16px 34px rgba(7, 49, 95, 0.08);
+        animation: nodeEnter 560ms var(--motion-ease) both;
+        transition: transform var(--motion-quick) var(--motion-ease), border-color var(--motion-quick) var(--motion-ease), box-shadow var(--motion-quick) var(--motion-ease);
+      }
+
+      .id-map-node:hover {
+        transform: translateY(-3px) scale(1.015);
+        border-color: color-mix(in srgb, var(--navy) 42%, var(--line));
+        box-shadow: 0 22px 46px rgba(7, 49, 95, 0.13);
       }
 
       .id-map-node b {
@@ -377,16 +406,17 @@
       }
 
       .id-map-app { left: 4%; top: 14%; }
-      .id-map-bank { left: 4%; bottom: 14%; }
+      .id-map-bank { left: 4%; bottom: 14%; animation-delay: 70ms; }
       .id-map-registry {
         left: 39%;
         top: 36%;
         width: min(260px, 25%);
         border-color: color-mix(in srgb, var(--navy) 44%, var(--line));
         background: color-mix(in srgb, var(--navy) 8%, var(--panel));
+        animation-delay: 140ms;
       }
-      .id-map-gateway { right: 5%; top: 17%; }
-      .id-map-result { right: 5%; bottom: 17%; }
+      .id-map-gateway { right: 5%; top: 17%; animation-delay: 210ms; }
+      .id-map-result { right: 5%; bottom: 17%; animation-delay: 280ms; }
 
       .id-data-line {
         --x: 0%;
@@ -443,6 +473,19 @@
         border: 1px solid var(--line);
         border-radius: 18px;
         background: var(--panel);
+        animation: cardEnter 540ms var(--motion-ease) both;
+        transition: transform var(--motion-quick) var(--motion-ease), box-shadow var(--motion-quick) var(--motion-ease), border-color var(--motion-quick) var(--motion-ease);
+      }
+
+      .identity-stack { animation-delay: 90ms; }
+      .identity-rule { animation-delay: 180ms; }
+
+      .identity-board-card:hover,
+      .identity-stack:hover,
+      .identity-rule:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--navy) 34%, var(--line));
+        box-shadow: 0 20px 50px rgba(7, 49, 95, 0.1);
       }
 
       .identity-board-card strong {
@@ -547,15 +590,52 @@
           color: var(--ink);
           border-color: color-mix(in srgb, var(--coral) 58%, var(--line));
           background: color-mix(in srgb, var(--coral) 10%, var(--panel));
-          transform: translateY(-2px);
+          opacity: 1;
+          transform: translateY(-2px) scale(1.018);
         }
-        28%, 100% { transform: none; }
+        28%, 100% {
+          opacity: 0.78;
+          transform: none;
+        }
       }
 
       @keyframes idDataPulse {
         0%, 12% { left: 0; transform: scaleX(0.25); opacity: 0; }
         20%, 80% { opacity: 1; }
         100% { left: calc(100% - 44px); transform: scaleX(0.75); opacity: 0; }
+      }
+
+      @keyframes fadeLift {
+        from {
+          opacity: 0;
+          transform: translateY(18px) scale(0.985);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @keyframes cardEnter {
+        from {
+          opacity: 0;
+          transform: translateY(22px) scale(0.975);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @keyframes nodeEnter {
+        from {
+          opacity: 0;
+          transform: translateY(14px) scale(0.94);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
       }
 
       .section {
@@ -693,6 +773,14 @@
       @media (prefers-reduced-motion: reduce) {
         .id-flow,
         .id-packet,
+        .hero > div,
+        .resolve-card,
+        .identity-motion,
+        .identity-flow-card,
+        .identity-board-card,
+        .identity-stack,
+        .identity-rule,
+        .id-map-node,
         .id-stage-row span,
         .id-data-line i {
           animation: none !important;
