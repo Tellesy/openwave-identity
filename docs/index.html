@@ -237,7 +237,8 @@
         font-size: 13px;
       }
 
-      .identity-motion {
+      .identity-motion,
+      .identity-flow-card {
         padding: 30px;
         display: grid;
         grid-template-columns: minmax(260px, 0.72fr) minmax(420px, 1.28fr);
@@ -247,6 +248,11 @@
         border-radius: 24px;
         background: var(--panel);
         box-shadow: 0 28px 90px rgba(7, 49, 95, 0.1);
+      }
+
+      .identity-flow-card {
+        grid-template-columns: 1fr;
+        margin-top: 16px;
       }
 
       .motion-copy h2 {
@@ -272,6 +278,85 @@
         width: 100%;
         height: auto;
         display: block;
+      }
+
+      .id-stage-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .id-stage-row span {
+        min-height: 78px;
+        padding: 12px;
+        display: grid;
+        align-content: center;
+        gap: 6px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        color: var(--muted);
+        background: color-mix(in srgb, var(--paper) 72%, var(--panel));
+        line-height: 1.25;
+        animation: idStepFocus 8s infinite;
+        animation-delay: calc(var(--i) * -2s);
+      }
+
+      .id-stage-row b {
+        width: 27px;
+        height: 27px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        color: #fff;
+        background: var(--navy);
+        font-size: 12px;
+      }
+
+      .identity-board {
+        display: grid;
+        grid-template-columns: minmax(220px, 0.78fr) minmax(280px, 1fr) minmax(220px, 0.78fr);
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .identity-board-card,
+      .identity-stack,
+      .identity-rule {
+        padding: 18px;
+        display: grid;
+        gap: 10px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--panel);
+      }
+
+      .identity-board-card strong {
+        font-size: 30px;
+        letter-spacing: -0.04em;
+      }
+
+      .identity-board-card small,
+      .identity-rule,
+      .identity-stack small {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .identity-stack span {
+        padding: 12px;
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--paper) 72%, var(--panel));
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .identity-stack .active {
+        outline: 2px solid color-mix(in srgb, var(--coral) 62%, transparent);
+      }
+
+      .identity-rule {
+        border-left: 4px solid var(--coral);
       }
 
       .id-flow {
@@ -340,6 +425,16 @@
         0%, 12% { offset-distance: 0%; opacity: 0; }
         18%, 82% { opacity: 1; }
         90%, 100% { offset-distance: 100%; opacity: 0; }
+      }
+
+      @keyframes idStepFocus {
+        0%, 18% {
+          color: var(--ink);
+          border-color: color-mix(in srgb, var(--coral) 58%, var(--line));
+          background: color-mix(in srgb, var(--coral) 10%, var(--panel));
+          transform: translateY(-2px);
+        }
+        28%, 100% { transform: none; }
       }
 
       .section {
@@ -434,11 +529,15 @@
 
         .hero,
         .identity-motion,
+        .identity-flow-card,
+        .identity-board,
+        .id-stage-row,
         .grid {
           grid-template-columns: 1fr;
         }
 
-        .identity-motion {
+        .identity-motion,
+        .identity-flow-card {
           padding: 20px;
         }
 
@@ -454,7 +553,8 @@
 
       @media (prefers-reduced-motion: reduce) {
         .id-flow,
-        .id-packet {
+        .id-packet,
+        .id-stage-row span {
           animation: none !important;
         }
         .id-packet {
@@ -537,12 +637,12 @@
       <section class="section">
         <div class="identity-motion" aria-label="Animated NPT identity resolution flow">
           <div class="motion-copy">
-            <p class="eyebrow">Resolution in motion</p>
-            <h2>A customer owns the handle. Banks vouch for accounts.</h2>
+            <p class="eyebrow">Ownership model</p>
+            <h2>The registry separates username ownership from bank account authority.</h2>
             <p>
-              Gateways ask the registry where an NPT handle should route. The registry answers
-              with bank-scoped account metadata, while private account details stay behind the
-              bank boundary.
+              The customer owns the global handle. Each bank can attach only accounts it has
+              vouched for. Gateways resolve routing data, but private bank data remains behind
+              the bank boundary.
             </p>
           </div>
           <div class="identity-graphic" aria-hidden="true">
@@ -561,6 +661,28 @@
               <circle class="id-packet id-packet-b" r="7"></circle>
               <circle class="id-packet id-packet-c" r="7"></circle>
             </svg>
+          </div>
+        </div>
+
+        <div class="identity-flow-card" aria-label="Animated NPT handle lifecycle">
+          <div class="motion-copy">
+            <p class="eyebrow">Handle lifecycle</p>
+            <h2>Claim, link, choose default, resolve.</h2>
+          </div>
+          <div class="id-stage-row">
+            <span style="--i:0"><b>1</b>Customer claims `tellesy` through a bank</span>
+            <span style="--i:1"><b>2</b>Bank links a vouched account</span>
+            <span style="--i:2"><b>3</b>Customer chooses default route</span>
+            <span style="--i:3"><b>4</b>Gateways resolve without seeing secrets</span>
+          </div>
+          <div class="identity-board" aria-hidden="true">
+            <div class="identity-board-card"><small>Global handle</small><strong>tellesy</strong><small>Owned by customer, not by a bank.</small></div>
+            <div class="identity-stack">
+              <span class="active">tellesy@andalus <b>default</b></span>
+              <span>tellesy@nub <b>linked</b></span>
+              <small>Bank-scoped account links can be changed without renaming the global handle.</small>
+            </div>
+            <div class="identity-rule">Banks may manage only the accounts they hold. A bank cannot rename or seize the customer’s global handle.</div>
           </div>
         </div>
       </section>
