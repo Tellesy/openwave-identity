@@ -319,6 +319,121 @@
         align-items: stretch;
       }
 
+      .identity-routing-card {
+        margin-top: 16px;
+      }
+
+      .identity-routing-map {
+        position: relative;
+        min-height: 500px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        overflow: hidden;
+        background:
+          linear-gradient(90deg, color-mix(in srgb, var(--paper) 76%, var(--panel)) 0 33%, transparent 33% 66%, color-mix(in srgb, var(--paper) 76%, var(--panel)) 66% 100%),
+          var(--panel);
+      }
+
+      .identity-routing-map::before {
+        content: "Registry authority boundary";
+        position: absolute;
+        top: 18px;
+        bottom: 18px;
+        left: 35%;
+        width: 30%;
+        display: grid;
+        align-items: end;
+        justify-items: center;
+        padding-bottom: 12px;
+        border: 1px dashed color-mix(in srgb, var(--navy) 36%, var(--line));
+        border-radius: 22px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 760;
+      }
+
+      .id-map-node {
+        position: absolute;
+        z-index: 2;
+        width: min(230px, 24%);
+        min-height: 92px;
+        padding: 16px;
+        display: grid;
+        align-content: center;
+        gap: 6px;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: var(--panel);
+        box-shadow: 0 16px 34px rgba(7, 49, 95, 0.08);
+      }
+
+      .id-map-node b {
+        color: var(--ink);
+      }
+
+      .id-map-node small {
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
+      .id-map-app { left: 4%; top: 14%; }
+      .id-map-bank { left: 4%; bottom: 14%; }
+      .id-map-registry {
+        left: 39%;
+        top: 36%;
+        width: min(260px, 25%);
+        border-color: color-mix(in srgb, var(--navy) 44%, var(--line));
+        background: color-mix(in srgb, var(--navy) 8%, var(--panel));
+      }
+      .id-map-gateway { right: 5%; top: 17%; }
+      .id-map-result { right: 5%; bottom: 17%; }
+
+      .id-data-line {
+        --x: 0%;
+        --y: 0%;
+        --w: 20%;
+        --r: 0deg;
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        width: var(--w);
+        height: 3px;
+        transform: rotate(var(--r));
+        transform-origin: left center;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--navy) 18%, var(--line));
+        z-index: 1;
+      }
+
+      .id-data-line i {
+        position: absolute;
+        inset-block: -4px;
+        left: 0;
+        width: 44px;
+        border-radius: 999px;
+        background: var(--coral);
+        box-shadow: 0 0 18px rgba(235, 78, 77, 0.34);
+        animation: idDataPulse 4.8s ease-in-out infinite;
+        animation-delay: var(--d, 0s);
+      }
+
+      .id-data-line em {
+        position: absolute;
+        left: 50%;
+        top: -30px;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        color: var(--muted);
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 760;
+      }
+
+      .id-data-owner { --x: 23%; --y: 26%; --w: 19%; --r: 15deg; --d: 0s; }
+      .id-data-link { --x: 23%; --y: 72%; --w: 19%; --r: -18deg; --d: -1.1s; }
+      .id-data-query { --x: 61%; --y: 42%; --w: 18%; --r: -19deg; --d: -2.2s; }
+      .id-data-answer { --x: 61%; --y: 58%; --w: 18%; --r: 21deg; --d: -3.3s; }
+
       .identity-board-card,
       .identity-stack,
       .identity-rule {
@@ -437,6 +552,12 @@
         28%, 100% { transform: none; }
       }
 
+      @keyframes idDataPulse {
+        0%, 12% { left: 0; transform: scaleX(0.25); opacity: 0; }
+        20%, 80% { opacity: 1; }
+        100% { left: calc(100% - 44px); transform: scaleX(0.75); opacity: 0; }
+      }
+
       .section {
         padding: 50px 0;
         border-top: 1px solid var(--line);
@@ -531,6 +652,7 @@
         .identity-motion,
         .identity-flow-card,
         .identity-board,
+        .identity-routing-map,
         .id-stage-row,
         .grid {
           grid-template-columns: 1fr;
@@ -546,6 +668,23 @@
           padding: 10px;
         }
 
+        .identity-routing-map {
+          min-height: auto;
+          display: grid;
+          gap: 10px;
+          padding: 10px;
+        }
+
+        .identity-routing-map::before,
+        .id-data-line {
+          display: none;
+        }
+
+        .id-map-node {
+          position: static;
+          width: auto;
+        }
+
         .endpoint {
           grid-template-columns: 1fr;
         }
@@ -554,7 +693,8 @@
       @media (prefers-reduced-motion: reduce) {
         .id-flow,
         .id-packet,
-        .id-stage-row span {
+        .id-stage-row span,
+        .id-data-line i {
           animation: none !important;
         }
         .id-packet {
@@ -683,6 +823,29 @@
               <small>Bank-scoped account links can be changed without renaming the global handle.</small>
             </div>
             <div class="identity-rule">Banks may manage only the accounts they hold. A bank cannot rename or seize the customer’s global handle.</div>
+          </div>
+        </div>
+
+        <div class="identity-flow-card identity-routing-card" aria-label="Animated registry authority and routing data flow">
+          <div class="motion-copy">
+            <p class="eyebrow">Registry data flow</p>
+            <h2>Gateways get routing answers, not private banking data.</h2>
+            <p>
+              The registry returns the bank handle, account route metadata, and ownership status needed
+              to continue the OpenWave flow. Authentication, balances, account numbers, and CBS actions
+              stay with the bank.
+            </p>
+          </div>
+          <div class="identity-routing-map" aria-hidden="true">
+            <div class="id-map-node id-map-app"><b>Customer app</b><small>Chooses default route</small></div>
+            <div class="id-map-node id-map-bank"><b>Bank portal</b><small>Links vouched accounts</small></div>
+            <div class="id-map-node id-map-registry"><b>OW Identity</b><small>Handle owner + account links</small></div>
+            <div class="id-map-node id-map-gateway"><b>OpenWave gateway</b><small>Resolve before payment or consent</small></div>
+            <div class="id-map-node id-map-result"><b>Routing answer</b><small>bank handle, account alias, status</small></div>
+            <span class="id-data-line id-data-owner"><i></i><em>owner settings</em></span>
+            <span class="id-data-line id-data-link"><i></i><em>vouched link</em></span>
+            <span class="id-data-line id-data-query"><i></i><em>resolve alias</em></span>
+            <span class="id-data-line id-data-answer"><i></i><em>route metadata</em></span>
           </div>
         </div>
       </section>
