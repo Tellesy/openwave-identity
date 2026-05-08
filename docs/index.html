@@ -7,6 +7,19 @@
     <meta name="description" content="OpenWave Identity Registry documentation for NPT handles, bank-vouched account links, public alias resolution, and registry governance." />
     <meta name="theme-color" content="#07315F" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <script>
+      (() => {
+        try {
+          const stored = localStorage.getItem("ow-identity-theme");
+          const fallback = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          const theme = stored || fallback;
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
     <style>
       :root {
         color-scheme: light dark;
@@ -98,11 +111,13 @@
         text-decoration: none;
       }
 
-      .nav-links .button {
+      .nav-links .button,
+      .theme-toggle {
         min-height: 40px;
         padding: 0 16px;
         display: inline-flex;
         align-items: center;
+        gap: 8px;
         border: 1px solid var(--line);
         border-radius: 999px;
         color: var(--ink);
@@ -111,7 +126,21 @@
         transition: transform var(--motion-quick) var(--motion-ease), box-shadow var(--motion-quick) var(--motion-ease), border-color var(--motion-quick) var(--motion-ease);
       }
 
-      .nav-links .button:hover {
+      .theme-toggle {
+        cursor: pointer;
+        font: inherit;
+        font-weight: 760;
+      }
+
+      .theme-toggle .theme-icon {
+        width: 18px;
+        height: 18px;
+        display: inline-grid;
+        place-items: center;
+      }
+
+      .nav-links .button:hover,
+      .theme-toggle:hover {
         transform: translateY(-2px) scale(1.01);
         border-color: color-mix(in srgb, var(--navy) 36%, var(--line));
         box-shadow: 0 18px 40px rgba(7, 49, 95, 0.11);
@@ -123,15 +152,6 @@
         grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.75fr);
         align-items: center;
         gap: 48px;
-      }
-
-      .hero > div,
-      .resolve-card {
-        animation: fadeLift var(--motion-page) var(--motion-ease) both;
-      }
-
-      .resolve-card {
-        animation-delay: 120ms;
       }
 
       .neptune {
@@ -267,7 +287,6 @@
         border-radius: 24px;
         background: var(--panel);
         box-shadow: 0 28px 90px rgba(7, 49, 95, 0.1);
-        animation: fadeLift 620ms var(--motion-ease) both;
       }
 
       .identity-flow-card {
@@ -317,9 +336,12 @@
         color: var(--muted);
         background: color-mix(in srgb, var(--paper) 72%, var(--panel));
         line-height: 1.25;
-        animation: idStepFocus 8s var(--motion-ease) infinite;
-        animation-delay: calc(var(--i) * -2s);
         transition: transform var(--motion-quick) var(--motion-ease), opacity var(--motion-quick) var(--motion-ease), border-color var(--motion-quick) var(--motion-ease);
+      }
+
+      .id-stage-row span:hover {
+        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--navy) 36%, var(--line));
       }
 
       .id-stage-row b {
@@ -386,7 +408,6 @@
         border-radius: 17px;
         background: var(--panel);
         box-shadow: 0 16px 34px rgba(7, 49, 95, 0.08);
-        animation: nodeEnter 560ms var(--motion-ease) both;
         transition: transform var(--motion-quick) var(--motion-ease), border-color var(--motion-quick) var(--motion-ease), box-shadow var(--motion-quick) var(--motion-ease);
       }
 
@@ -406,17 +427,16 @@
       }
 
       .id-map-app { left: 4%; top: 14%; }
-      .id-map-bank { left: 4%; bottom: 14%; animation-delay: 70ms; }
+      .id-map-bank { left: 4%; bottom: 14%; }
       .id-map-registry {
         left: 39%;
         top: 36%;
         width: min(260px, 25%);
         border-color: color-mix(in srgb, var(--navy) 44%, var(--line));
         background: color-mix(in srgb, var(--navy) 8%, var(--panel));
-        animation-delay: 140ms;
       }
-      .id-map-gateway { right: 5%; top: 17%; animation-delay: 210ms; }
-      .id-map-result { right: 5%; bottom: 17%; animation-delay: 280ms; }
+      .id-map-gateway { right: 5%; top: 17%; }
+      .id-map-result { right: 5%; bottom: 17%; }
 
       .id-data-line {
         --x: 0%;
@@ -473,12 +493,8 @@
         border: 1px solid var(--line);
         border-radius: 18px;
         background: var(--panel);
-        animation: cardEnter 540ms var(--motion-ease) both;
         transition: transform var(--motion-quick) var(--motion-ease), box-shadow var(--motion-quick) var(--motion-ease), border-color var(--motion-quick) var(--motion-ease);
       }
-
-      .identity-stack { animation-delay: 90ms; }
-      .identity-rule { animation-delay: 180ms; }
 
       .identity-board-card:hover,
       .identity-stack:hover,
@@ -522,12 +538,8 @@
         stroke: color-mix(in srgb, var(--navy) 72%, var(--line));
         stroke-width: 3;
         stroke-linecap: round;
-        stroke-dasharray: 10 14;
-        animation: idDash 4.8s linear infinite;
+        stroke-dasharray: 0;
       }
-
-      .id-flow-b { animation-delay: -1.4s; }
-      .id-flow-c { animation-delay: -2.6s; }
 
       .id-node rect {
         fill: var(--panel);
@@ -554,25 +566,21 @@
       }
 
       .id-packet {
-        fill: var(--coral);
-        filter: drop-shadow(0 0 10px rgba(235, 78, 77, 0.38));
+        display: none;
       }
 
       .id-packet-a {
         offset-path: path("M150 160 C280 110 330 110 460 160 C590 110 640 110 770 160");
-        animation: idPacket 5.8s ease-in-out infinite;
       }
 
       .id-packet-b {
         fill: var(--teal);
         offset-path: path("M150 360 C280 410 330 410 460 360 C590 410 640 410 770 360");
-        animation: idPacket 6.2s ease-in-out infinite -1.4s;
       }
 
       .id-packet-c {
         fill: var(--navy);
         offset-path: path("M770 260 C640 260 590 260 460 260 C330 260 280 260 150 260");
-        animation: idPacket 5.4s ease-in-out infinite -2.7s;
       }
 
       @keyframes idDash {
@@ -790,26 +798,24 @@
         }
       }
 
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --ink: #f7f8fa;
-          --muted: #b4c0c8;
-          --line: rgba(255, 255, 255, 0.12);
-          --paper: #07111d;
-          --panel: #0c1826;
-        }
+      html[data-theme="dark"] {
+        --ink: #f7f8fa;
+        --muted: #b4c0c8;
+        --line: rgba(255, 255, 255, 0.12);
+        --paper: #07111d;
+        --panel: #0c1826;
+      }
 
-        .alias {
-          background: rgba(255, 255, 255, 0.05);
-        }
+      html[data-theme="dark"] .alias {
+        background: rgba(255, 255, 255, 0.05);
+      }
 
-        .neptune-default {
-          display: none;
-        }
+      html[data-theme="dark"] .neptune-default {
+        display: none;
+      }
 
-        .neptune-dark {
-          display: block;
-        }
+      html[data-theme="dark"] .neptune-dark {
+        display: block;
       }
     </style>
   </head>
@@ -825,6 +831,10 @@
       <nav class="nav-links" aria-label="Primary">
         <a href="https://neptune-ly.github.io/openwave-spec/guide/npt.html">NPT guide</a>
         <a href="https://neptune-ly.github.io/openwave-spec/api/overview.html">API reference</a>
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode" data-theme-toggle>
+          <span class="theme-icon" aria-hidden="true">◐</span>
+          <span data-theme-label>Theme</span>
+        </button>
         <a class="button" href="https://github.com/neptune-ly/openwave-identity">GitHub</a>
       </nav>
     </header>
@@ -975,5 +985,31 @@
       <span>Neptune Fintech</span>
       <span>OpenWave Identity Registry</span>
     </footer>
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const button = document.querySelector("[data-theme-toggle]");
+        const label = document.querySelector("[data-theme-label]");
+
+        function setTheme(theme) {
+          root.dataset.theme = theme;
+          root.style.colorScheme = theme;
+          try {
+            localStorage.setItem("ow-identity-theme", theme);
+          } catch {}
+          if (button) {
+            button.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+          }
+          if (label) {
+            label.textContent = theme === "dark" ? "Light" : "Dark";
+          }
+        }
+
+        setTheme(root.dataset.theme === "dark" ? "dark" : "light");
+        button?.addEventListener("click", () => {
+          setTheme(root.dataset.theme === "dark" ? "light" : "dark");
+        });
+      })();
+    </script>
   </body>
 </html>
