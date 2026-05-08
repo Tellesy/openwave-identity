@@ -34,6 +34,25 @@ A person owns a username. They can link accounts from multiple banks to it:
 
 No IBAN required at the point of payment. One identity, any bank.
 
+## Developer mental model
+
+OpenWave Identity is not a wallet and not a payment gateway. It is the routing authority for NPT aliases:
+
+| Actor | What they can do | Boundary |
+|:---|:---|:---|
+| Customer | Own the global username and choose the default account | No bank should rename a global handle on the customer's behalf |
+| Bank | Claim/link/unlink accounts it has KYC-vouched for | Bank-scoped to its own accounts only |
+| Gateway | Resolve aliases before routing payments or Open Banking handoff | Read-only public resolution |
+| Registry admin | Register banks, rotate credentials, audit registry operations | Governance and operational control |
+
+For a full implementation, read the OpenWave spec pages:
+
+- [NPT guide](https://Tellesy.github.io/openwave-spec/guide/npt.html)
+- [Identity API reference](https://Tellesy.github.io/openwave-spec/api/overview.html)
+- [Gateway Interconnect](https://Tellesy.github.io/openwave-spec/guide/gateway-interconnect.html)
+
+The bundled UI now includes a public registry/developer landing page plus a credential-based admin portal. API keys remain integration credentials; human portal access uses usernames, passwords, roles, and bank scoping.
+
 ---
 
 ## How it works
@@ -120,25 +139,26 @@ cp .env.example .env
 ./gradlew bootRun
 ```
 
-The registry starts on `http://localhost:8090`.
+The registry API starts on `http://localhost:8095` by default in the local OpenWave stack.
+The UI is served from `openwave-ui` during development.
 
 ### Quick test
 
 ```bash
 # Register a bank (admin)
-curl -X POST http://localhost:8090/v1/banks \
+curl -X POST http://localhost:8095/v1/banks \
   -H "X-OpenWave-Registry-Key: your-admin-key" \
   -H "Content-Type: application/json" \
   -d '{"bank_handle":"andalus","display_name":"Andalus Bank","country":"LY","core_url":"https://api.andalus.ly","contact_email":"openwave@andalus.ly"}'
 
 # Claim a handle (bank-initiated)
-curl -X POST http://localhost:8090/v1/identity/claim \
+curl -X POST http://localhost:8095/v1/identity/claim \
   -H "X-OpenWave-Bank-Key: owbk_andalus_..." \
   -H "Content-Type: application/json" \
   -d '{"npt_handle":"mtellesy","iban":"LY83002700100099900001","customer_display_name":"Mohamed T.","bank_customer_ref":"CUST-001"}'
 
 # Resolve (public)
-curl http://localhost:8090/v1/identity/resolve?alias=mtellesy
+curl http://localhost:8095/v1/identity/resolve?alias=mtellesy
 ```
 
 ---
