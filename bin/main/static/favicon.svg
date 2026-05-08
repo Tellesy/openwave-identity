@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="18" fill="#07315F"/>
+  <path d="M18 32c7-15 15-22 24-22 6 0 10 5 15 10 4 5 9 10 18 3" stroke="#EB4E4D" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" transform="translate(-9 5)"/>
+  <path d="M18 36c7-10 15-15 23-15 6 0 10 4 15 7 4 4 9 7 18 2" stroke="#00A8AE" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" transform="translate(-9 5)"/>
+  <text x="32" y="39" text-anchor="middle" fill="#F0CE9D" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" font-size="14" font-weight="800">OW</text>
+</svg>
