@@ -1,5 +1,13 @@
 .gradle/
 build/
+dist/
+**/dist/
+**/.svelte-kit/
+**/.vite/
+coverage/
+**/coverage/
+node_modules/
+**/node_modules/
 .idea/
 *.iml
 out/
@@ -10,3 +18,17 @@ out/
 !.env.example
 src/main/resources/application-local.yml
 src/main/resources/application-prod.yml
+
+# Generated demo media and browser captures
+recordings/
+**/recordings/
+screenshots/
+**/screenshots/
+playwright-report/
+**/playwright-report/
+test-results/
+**/test-results/
+*.webm
+*.mp4
+*.mov
+*.m4v
