@@ -60,5 +60,5 @@ If two parties claim the same handle:
 ## Amendments
 
 Changes to this charter are proposed via GitHub pull request to the
-`openwave-standard/openwave-identity` repository. A 30-day public comment
+`neptune/openwave-identity` repository. A 30-day public comment
 period applies to material changes.

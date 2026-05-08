@@ -7,10 +7,12 @@
 **Open Source · Bank-Vouched · Governance-First**
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)
-[![Spec](https://img.shields.io/badge/OpenWave%20Identity-v1.0-brightgreen)](https://github.com/openwave-standard/openwave-spec)
+[![Spec](https://img.shields.io/badge/OpenWave%20Identity-v1.0-brightgreen)](https://github.com/neptune/openwave-spec)
 [![Built with](https://img.shields.io/badge/Kotlin-Spring%20Boot%203-orange)](https://spring.io/projects/spring-boot)
 
 *Operated by [Neptune Fintech](https://www.neptune.ly) — future stewardship: Central Bank of Libya*
+
+**Docs:** https://neptune.github.io/openwave-identity/
 
 </div>
 
@@ -19,7 +21,7 @@
 ## What is this?
 
 The **OpenWave Identity Registry** is the open-source implementation of the
-[OpenWave Identity API v1.0](https://github.com/openwave-standard/openwave-spec).
+[OpenWave Identity API v1.0](https://github.com/neptune/openwave-spec).
 
 It is the global service that maps **NPT (National Payment Tag) handles** to bank accounts,
 enabling universal payment routing across the Libyan banking network.
@@ -47,9 +49,9 @@ OpenWave Identity is not a wallet and not a payment gateway. It is the routing a
 
 For a full implementation, read the OpenWave spec pages:
 
-- [NPT guide](https://Tellesy.github.io/openwave-spec/guide/npt.html)
-- [Identity API reference](https://Tellesy.github.io/openwave-spec/api/overview.html)
-- [Gateway Interconnect](https://Tellesy.github.io/openwave-spec/guide/gateway-interconnect.html)
+- [NPT guide](https://neptune.github.io/openwave-spec/guide/npt.html)
+- [Identity API reference](https://neptune.github.io/openwave-spec/api/overview.html)
+- [Gateway Interconnect](https://neptune.github.io/openwave-spec/guide/gateway-interconnect.html)
 
 The bundled UI now includes a public registry/developer landing page plus a credential-based admin portal. API keys remain integration credentials; human portal access uses usernames, passwords, roles, and bank scoping.
 
@@ -77,7 +79,7 @@ OpenWave Identity remains the source of truth for **who owns an NPT handle**. In
 2. Gateway A resolves the handle through OpenWave Identity.
 3. The response identifies the bank handle and account routing metadata.
 4. If the owning bank is served by another gateway, Gateway A uses the
-   [OpenWave Gateway Interconnect Protocol](https://github.com/openwave-standard/openwave-spec/blob/main/openwave-gateway-interconnect-v1.yaml)
+   [OpenWave Gateway Interconnect Protocol](https://github.com/neptune/openwave-spec/blob/main/openwave-gateway-interconnect-v1.yaml)
    to call Gateway B through `resolve-alias-remote` and `route-payment`.
 
 The registry does **not** execute payments, hold funds, or replace gateway-to-gateway settlement. It provides identity and routing facts; OW-GIP handles gateway discovery, remote routing, payment status, health, and interconnect settlement.
@@ -109,7 +111,7 @@ Merchant → Gateway A → OpenWave Identity
 | `PATCH` | `/v1/banks/{handle}` | Admin key | Update bank |
 | `GET` | `/v1/registry/info` | None (public) | Registry metadata |
 
-Full spec: [`openwave-identity-v1.0.yaml`](https://github.com/openwave-standard/openwave-spec/blob/main/openwave-identity-v1.0.yaml)
+Full spec: [`openwave-identity-v1.0.yaml`](https://github.com/neptune/openwave-spec/blob/main/openwave-identity-v1.0.yaml)
 
 ---
 
@@ -130,7 +132,7 @@ psql -c "ALTER USER openwave WITH PASSWORD 'openwave';"
 psql -c "GRANT ALL PRIVILEGES ON DATABASE openwave_identity TO openwave;"
 
 # Clone and run
-git clone https://github.com/openwave-standard/openwave-identity.git
+git clone https://github.com/neptune/openwave-identity.git
 cd openwave-identity
 
 cp .env.example .env
@@ -209,6 +211,6 @@ Apache License 2.0 — see [LICENSE](./LICENSE).
 <div align="center">
 
 Developed and operated by **[Neptune Fintech](https://www.neptune.ly)**  
-Part of the [OpenWave Standard](https://github.com/openwave-standard/openwave-spec)
+Part of the [OpenWave Standard](https://github.com/neptune/openwave-spec)
 
 </div>
