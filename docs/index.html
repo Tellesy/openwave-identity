@@ -664,6 +664,12 @@
         gap: 16px;
       }
 
+      .docs-grid {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.85fr) minmax(360px, 1.15fr);
+        gap: 18px;
+      }
+
       .panel {
         min-height: 190px;
         padding: 22px;
@@ -682,6 +688,50 @@
         margin: 0;
         color: var(--muted);
         line-height: 1.62;
+      }
+
+      .panel ul {
+        margin: 12px 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.62;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--panel);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 680px;
+      }
+
+      th,
+      td {
+        padding: 15px 16px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--ink);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      td {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
       }
 
       .endpoints {
@@ -749,7 +799,8 @@
         .identity-board,
         .identity-routing-map,
         .id-stage-row,
-        .grid {
+        .grid,
+        .docs-grid {
           grid-template-columns: 1fr;
         }
 
@@ -837,7 +888,8 @@
       </a>
       <nav class="nav-links" aria-label="Primary">
         <a href="https://neptune-ly.github.io/openwave-spec/guide/npt.html">NPT guide</a>
-        <a href="https://neptune-ly.github.io/openwave-spec/api/overview.html">API reference</a>
+        <a href="https://neptune-ly.github.io/openwave-spec/api/identity.html">API reference</a>
+        <a href="#tooling">Tooling</a>
         <button class="theme-toggle" type="button" aria-label="Switch to dark mode" data-theme-toggle>
           <span class="theme-icon" aria-hidden="true">◐</span>
           <span data-theme-label>Theme</span>
@@ -860,7 +912,7 @@
           </p>
           <div class="actions">
             <a class="cta" href="https://neptune-ly.github.io/openwave-spec/guide/npt.html">Read NPT model</a>
-            <a class="cta secondary" href="https://neptune-ly.github.io/openwave-spec/spec.html">OpenAPI files</a>
+            <a class="cta secondary" href="https://raw.githubusercontent.com/neptune-ly/openwave-spec/main/openwave-identity-v1.0.yaml">Download OpenAPI</a>
           </div>
         </div>
 
@@ -975,6 +1027,44 @@
       </section>
 
       <section class="section">
+        <p class="eyebrow">Who can do what</p>
+        <h2>The registry protects customer ownership while giving banks the tools they need.</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Actor</th>
+                <th>Allowed</th>
+                <th>Not allowed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Customer</td>
+                <td>Own the global username, choose default account, revoke visibility where policy permits, recover access through governed flows.</td>
+                <td>Bypass bank KYC to link accounts the bank has not vouched for.</td>
+              </tr>
+              <tr>
+                <td>Bank</td>
+                <td>Claim or link accounts it owns, update account status, resend credentials for its customer channels, suspend bank-scoped links for risk.</td>
+                <td>Rename the customer's global username or modify accounts belonging to another bank.</td>
+              </tr>
+              <tr>
+                <td>Gateway</td>
+                <td>Resolve aliases for payment routing, cache short-lived route metadata, and continue OpenWave checkout or consent.</td>
+                <td>Treat cached aliases as ownership truth when the registry is unavailable.</td>
+              </tr>
+              <tr>
+                <td>Registry admin</td>
+                <td>Govern bank onboarding, namespace disputes, fraud holds, recovery policy, and audit access.</td>
+                <td>Expose private account data to merchants or gateways outside explicit routing needs.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
         <p class="eyebrow">Endpoint map</p>
         <h2>Small surface, strict responsibility.</h2>
         <div class="endpoints">
@@ -984,6 +1074,72 @@
           <div class="endpoint"><span class="method">PATCH</span><code>/v1/identity/{handle}/default</code><p>Set the customer default receiving account.</p></div>
           <div class="endpoint"><span class="method">GET</span><code>/v1/banks</code><p>Public participating bank directory and routing phonebook.</p></div>
           <div class="endpoint"><span class="method">GET</span><code>/v1/registry/info</code><p>Registry operator, governance, and source metadata.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="tooling">
+        <p class="eyebrow">OpenAPI and client tooling</p>
+        <h2>Use the same machine-readable contract everywhere.</h2>
+        <div class="docs-grid">
+          <article class="panel">
+            <b>Download and inspect</b>
+            <p>The Identity Registry contract is published in the OpenWave spec repository as OpenAPI 3.0 YAML.</p>
+            <div class="actions">
+              <a class="cta" href="https://raw.githubusercontent.com/neptune-ly/openwave-spec/main/openwave-identity-v1.0.yaml">Download YAML</a>
+              <a class="cta secondary" href="https://editor.swagger.io/?url=https://raw.githubusercontent.com/neptune-ly/openwave-spec/main/openwave-identity-v1.0.yaml">Open in Swagger</a>
+            </div>
+          </article>
+          <article class="panel">
+            <b>Postman import</b>
+            <p>In Postman, choose Import, then Link, and paste the raw YAML URL below.</p>
+            <pre>https://raw.githubusercontent.com/neptune-ly/openwave-spec/main/openwave-identity-v1.0.yaml</pre>
+          </article>
+        </div>
+        <div class="docs-grid" style="margin-top:16px">
+          <article class="panel">
+            <b>Environment variables</b>
+            <ul>
+              <li><code>IDENTITY_URL</code> for the registry base URL.</li>
+              <li><code>BANK_KEY</code> for `X-OpenWave-Bank-Key: owbk_...`.</li>
+              <li><code>CORRELATION_ID</code> for tracing test calls.</li>
+            </ul>
+          </article>
+          <article class="panel">
+            <b>Generated clients</b>
+            <pre>npx @openapitools/openapi-generator-cli generate \
+  -i https://raw.githubusercontent.com/neptune-ly/openwave-spec/main/openwave-identity-v1.0.yaml \
+  -g typescript-fetch \
+  -o ./openwave-identity-client</pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <p class="eyebrow">Standard error shape</p>
+        <h2>Errors are explicit, traceable, and safe to show where appropriate.</h2>
+        <div class="docs-grid">
+          <article class="panel">
+            <b>Alias not found</b>
+            <pre>{
+  "error": {
+    "code": "ALIAS_NOT_FOUND",
+    "message": "Alias was not found in the identity registry.",
+    "retryable": false,
+    "correlation_id": "corr_01HX7V7XT5Y7C7G5WM3H8S5W5P"
+  }
+}</pre>
+          </article>
+          <article class="panel">
+            <b>Bank link forbidden</b>
+            <pre>{
+  "error": {
+    "code": "BANK_ACCOUNT_SCOPE_FORBIDDEN",
+    "message": "This bank cannot modify an account owned by another bank.",
+    "retryable": false,
+    "correlation_id": "corr_01HX7Z4T2V1M7J6HEAWMF6Q9E3"
+  }
+}</pre>
+          </article>
         </div>
       </section>
     </main>
