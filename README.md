@@ -53,6 +53,7 @@ For a full implementation, read the OpenWave spec pages:
 
 - [NPT guide](https://neptune-ly.github.io/openwave-spec/guide/npt.html)
 - [Identity API reference](https://neptune-ly.github.io/openwave-spec/api/overview.html)
+- [Presented payments](https://neptune-ly.github.io/openwave-spec/guide/presented-payments.html)
 - [Gateway Interconnect](https://neptune-ly.github.io/openwave-spec/guide/gateway-interconnect.html)
 
 The bundled UI now includes a public registry/developer landing page plus a credential-based admin portal. API keys remain integration credentials; human portal access uses usernames, passwords, roles, and bank scoping.
@@ -85,6 +86,8 @@ OpenWave Identity remains the source of truth for **who owns an NPT handle**. In
    to call Gateway B through `resolve-alias-remote` and `route-payment`.
 
 The registry does **not** execute payments, hold funds, or replace gateway-to-gateway settlement. It provides identity and routing facts; OW-GIP handles gateway discovery, remote routing, payment status, health, and interconnect settlement.
+
+The same boundary applies to presented payments. QR and NFC presentments may resolve an alias through OpenWave Identity, but the registry must not own presentment creation, claim state, session status, or customer authorization state.
 
 Recommended production topology:
 
