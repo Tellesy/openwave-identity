@@ -89,6 +89,8 @@ The registry does **not** execute payments, hold funds, or replace gateway-to-ga
 
 The same boundary applies to presented payments. QR and NFC presentments may resolve an alias through OpenWave Identity, but the registry must not own presentment creation, claim state, session status, or customer authorization state.
 
+The same boundary also applies to Credit & Finance. Identity may help a finance provider, gateway, bank, or wallet resolve an alias for account selection or repayment routing, but the registry must not store credit assessments, risk scores, finance offers, contracts, repayment schedules, or customer affordability data.
+
 Recommended production topology:
 
 ```text

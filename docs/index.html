@@ -1028,6 +1028,44 @@
       </section>
 
       <section class="section">
+        <p class="eyebrow">Payments, presented channels, and finance</p>
+        <h2>The registry gives a routing answer. Other OpenWave modules own the lifecycle.</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>OpenWave flow</th>
+                <th>Identity role</th>
+                <th>Lifecycle owner</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>One-time payment</td>
+                <td>Resolve NPT handle to bank/account route metadata.</td>
+                <td>Gateway, bank, payment rail, and merchant webhook state.</td>
+              </tr>
+              <tr>
+                <td>QR or NFC presented payment</td>
+                <td>Resolve any NPT alias embedded in or linked from the presentment.</td>
+                <td>Presented-payment operator handles creation, claim, auth, status, and expiry.</td>
+              </tr>
+              <tr>
+                <td>Open Banking consent</td>
+                <td>Help identify the bank route when an alias is used.</td>
+                <td>Open Banking authorization server, bank SCA, TPP consent lifecycle.</td>
+              </tr>
+              <tr>
+                <td>Credit & Finance</td>
+                <td>Resolve identity for account selection or repayment routing when needed.</td>
+                <td>Finance provider, lender, Open Banking consent, payment settlement, repayment schedule.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
         <p class="eyebrow">Who can do what</p>
         <h2>The registry protects customer ownership while giving banks the tools they need.</h2>
         <div class="table-wrap">
